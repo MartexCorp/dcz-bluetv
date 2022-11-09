@@ -1,0 +1,13 @@
+{
+  "compilerOptions": {
+    "lib": ["ES2015","ES5", "DOM"],
+    "module": "commonjs",
+    "esModuleInterop": true,
+    "outDir": "./build",
+    "rootDir": "./src",
+    "target": "es2016",
+    "noImplicitAny": false,
+    "skipLibCheck": true,
+    "strict": true
+  }
+}
