@@ -14,7 +14,7 @@ export const generateOTP = function(request: Request, response: Response, next: 
   return new Promise(function(resolve, reject) {
     generateSecret().then((secret)=> {
       generateToken(secret).then((secretToken) => {
-        sendAuthSMSToUserPhone(telephoneNumber, "Blue TV",
+        sendAuthSMSToUserPhone(telephoneNumber,
           // eslint-disable-next-line max-len
           "[Auth]: " + "Verification code: " + (secretToken)["token"] + ". DO NOT share this code with ANYONE", secretToken)
           // eslint-disable-next-line max-len
@@ -76,27 +76,22 @@ async function generateToken(secret: string): Promise<object> {
 }
 
 // eslint-disable-next-line require-jsdoc,max-len
-async function sendAuthSMSToUserPhone(telephone: string, smsSenderName: string, smsBodyText: string, secretToken:object): Promise<object> {
+async function sendAuthSMSToUserPhone(telephone: string, smsBodyText: string, secretToken:object): Promise<object> {
   return new Promise((resolve, reject) => {
-    getSMSAPIKey().then((smsApiKey) => {
       // @ts-ignore
       const data = JSON.stringify({
-        "sender": smsSenderName,
         "recipient": "+237" + telephone,
         "text": smsBodyText,
       });
-      const config = {
-        method: "post",
-        url: "https://api.avlytext.com/v1/sms?api_key=" + smsApiKey,
-        headers: {
-          "Content-Type": "application/json",
-        },
-        data: data,
+      var config = {
+        method: "get",
+        url: "http://172.20.24.77:9501/api?action=sendmessage&username=mwaretv&password=mwaretv1234&recipient=237"+telephone+"&messagetype=SMS:TEXT&messagedata="+smsBodyText,
+        headers: { }
       };
       axios.request(config)
         .then((response:any)=>{
           resolve({st: secretToken, status: response.status});
-          console.log("- SMS Request Response Data");
+          console.log("-> SMS Request Response Data");
           // @ts-ignore
           console.log(JSON.stringify(response.data));
           console.log("-> Secret-Token Data");
@@ -107,14 +102,8 @@ async function sendAuthSMSToUserPhone(telephone: string, smsSenderName: string, 
           console.log(error);
           reject(error)
         });
-    });
   });
 }
 
-async function getSMSAPIKey(): Promise<string> {
-  let SMSAPIKey = "aliKwBsHPZdQE8LUBtdRpF6glPzhfexefu2PNB3bo8Hff4i8YxW1Hqq63sLC5kvoSm89";
-  console.log("✔ Gotten SMS API Key");
-  return SMSAPIKey;
-}
 
 export default { generateOTP, checkOTP };
