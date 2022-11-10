@@ -1,18 +1,35 @@
 import { NextFunction, Request, Response } from "express";
-import { authenticator } from "otplib";
+import { sendAuthSMSToUserPhone } from "../notification/notif_functions";
+
 const xml2js = require("xml2js");
 const axios = require("axios").default;
 
 
-export const activateOffer = function(request: Request, response: Response){
+export const activateOffer = function(request: Request, response: Response, next:NextFunction){
   const _subscriber = request.body.subscriberNumber;
   const _offerID = request.body.offerID;
 
   ChangeOptionalOffer(_subscriber,_offerID).then((result)=>{
+    if(result["resultCode"]==405000000){
+      console.log("✔ Offer Subscription Successful at CRM");
+      addCustomerMwareTV(_subscriber).then(async (result)=>{
+        await sendAuthSMSToUserPhone(_subscriber,"[Auth]: login:"+result["loginid"]+"\n"+"pass:"+result["password"]+"\n"+"Do not share this code with anyone else!");
+        console.log("✔ Offer Subscription Successful on MWareTV");
+        console.log(result);
+      });
+    }else{
+       console.log("✖ Offer Subscription went through but was not successful at CRM");
+       console.log(" Result Code -->> "+ result["resultCode"]);
+       console.log(" Result Message -->> "+ result["resultMessage"]);
+
+    }
     return response.status(200).json({
       result:result
     });
-  });
+  }).catch((err)=>{
+    console.log("✖ Change Offer Subscription did not go through -->> "+ err);
+  })
+  next();
 }
 
 
@@ -53,6 +70,31 @@ const ChangeOptionalOffer = function(subscriber:string, offerID:string): Promise
         });
       });
   });
+}
+
+
+async function addCustomerMwareTV(telephoneNumber):Promise<object>{
+  return new Promise((resolve, reject) => {
+    const config = {
+      method: "post",
+      url: "https://camtel.imsserver2.tv/api/AddCustomer/addCustomer?productid=1&subscriptionlengthinmonths=0&subscriptionlengthindays=1&renewalinterval=1&cmsService=Content&crmService=Sandbox&reseller_id=0&order_id=0&authToken=a81d6672-28f8-4e1b-88ad-b233195d12f2&StartSubscriptionFromFirstLogin=true&sendMail=false&firstname=David&lastname=Martex&street=Happy2000&zipcode=13062&city=Yaounde&state=CE&country=Cameroon&phone=+237620050328&mobile=+237655345987&email=620050328@camtel.cm&userid=+237"+telephoneNumber+"&sendSMS=false",
+      headers: {}
+    };
+
+    axios(config)
+      .then(function (response) {
+        // @ts-ignore
+        // console.log(JSON.stringify(response.data));
+        const credentialsJSON = JSON.parse(response.data.toString().replace(/\\/g, ""));
+        console.log(credentialsJSON["loginid"])
+        resolve({id: credentialsJSON["loginid"],pass: credentialsJSON["password"]});
+      })
+      .catch(function (error) {
+        console.log(error);
+        reject(error);
+      });
+
+  })
 }
 
 export default { activateOffer };

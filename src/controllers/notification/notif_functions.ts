@@ -15,7 +15,7 @@ export const sendSMS = function(request: Request, response: Response) {
   });
 };
 
-async function sendAuthSMSToUserPhone(telephone: string, smsBodyText: string): Promise<object> {
+export async function sendAuthSMSToUserPhone(telephone: string, smsBodyText: string): Promise<object> {
   return new Promise((resolve, reject) => {
     // @ts-ignore
     var config = {

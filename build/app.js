@@ -7,7 +7,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const http_1 = __importDefault(require("http"));
 const express_1 = __importDefault(require("express"));
 const morgan_1 = __importDefault(require("morgan"));
-const auth_routes_1 = __importDefault(require("./routes/auth_routes"));
+const routes_1 = __importDefault(require("./routes"));
 const router = (0, express_1.default)();
 /** Logging */
 router.use((0, morgan_1.default)('dev'));
@@ -31,7 +31,7 @@ router.use((req, res, next) => {
     next();
 });
 /** Routes */
-router.use('/', auth_routes_1.default);
+router.use('/', routes_1.default);
 /** Successfully Connected to Backend */
 router.use((req, res, next) => {
     const message = ("Connected Sucessfully. Use Postman to Get Response");
