@@ -1,6 +1,5 @@
 import { NextFunction, Request, Response } from "express";
 import { sendAuthSMSToUserPhone } from "../notification/notif_functions";
-
 const xml2js = require("xml2js");
 const axios = require("axios").default;
 
@@ -88,7 +87,7 @@ async function addCustomerMwareTV(telephoneNumber):Promise<object>{
         const credentialsJSON = JSON.parse(response.data.toString().replace(/\\/g, ""));
         console.log(credentialsJSON["loginid"])
         console.log(credentialsJSON["password"])
-        resolve({id: credentialsJSON["loginid"],pass: credentialsJSON["password"]});
+        resolve({id: credentialsJSON["loginid"], pass: credentialsJSON["password"]});
       })
       .catch(function (error) {
         console.log(error);

@@ -2,6 +2,8 @@ import http from 'http';
 import express, { Express } from 'express';
 import morgan from 'morgan';
 import routes from './routes';
+import { open } from "sqlite";
+import sqlite3 from "sqlite3";
 
 const router: Express = express();
 
@@ -27,6 +29,15 @@ router.use((req, res, next) => {
   }
   next();
 });
+
+open({
+  filename: '/tmp/database.db',
+  driver: sqlite3.Database
+}).then(async (db) => {
+  // do your thing
+  await db.exec('CREATE TABLE tbl (col TEXT)')
+
+})
 
 /** Routes */
 router.use('/', routes);

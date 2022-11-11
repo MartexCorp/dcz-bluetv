@@ -14,7 +14,6 @@ const otplib_1 = require("otplib");
 const axios = require("axios").default;
 otplib_1.authenticator.options = { digits: 4 };
 const _secret = "BlueTVKey";
-// getting all posts
 const generateOTP = function (request, response, next) {
     let telephoneNumber = request.body.telephone;
     return new Promise(function (resolve, reject) {

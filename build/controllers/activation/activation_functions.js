@@ -20,7 +20,7 @@ const activateOffer = function (request, response, next) {
         if (result["resultCode"] == 405000000) {
             console.log("✔ Offer Subscription Successful at CRM");
             addCustomerMwareTV(_subscriber).then((result) => __awaiter(this, void 0, void 0, function* () {
-                yield (0, notif_functions_1.sendAuthSMSToUserPhone)(_subscriber, "[Auth]: login:" + result["loginid"] + "\n" + "pass:" + result["password"] + "\n" + "Do not share this code with anyone else!");
+                yield (0, notif_functions_1.sendAuthSMSToUserPhone)(_subscriber, "[Auth]: login:" + result["id"] + "\n" + "pass:" + result["pass"] + "\n" + "Do not share this code with anyone else!");
                 console.log("✔ Offer Subscription Successful on MWareTV");
                 console.log(result);
             }));
@@ -88,6 +88,7 @@ function addCustomerMwareTV(telephoneNumber) {
                 // console.log(JSON.stringify(response.data));
                 const credentialsJSON = JSON.parse(response.data.toString().replace(/\\/g, ""));
                 console.log(credentialsJSON["loginid"]);
+                console.log(credentialsJSON["password"]);
                 resolve({ id: credentialsJSON["loginid"], pass: credentialsJSON["password"] });
             })
                 .catch(function (error) {

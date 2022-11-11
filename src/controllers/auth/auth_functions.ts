@@ -6,8 +6,6 @@ authenticator.options = {digits: 4};
 const _secret = "BlueTVKey";
 
 
-// getting all posts
-
 
 export const generateOTP = function(request: Request, response: Response, next: NextFunction): Promise<object> {
   let telephoneNumber: string = request.body.telephone;
