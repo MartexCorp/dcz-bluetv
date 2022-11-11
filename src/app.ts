@@ -40,10 +40,12 @@ open({
 /** Routes */
 router.use('/', routes);
 
-/** Successfully Connected to Backend */
+/** Error handling */
 router.use((req, res, next) => {
-  const message = ("Connected Sucessfully. Use Postman to Get Response");
-  return res.status(200).send(message);
+  const error = new Error('not found');
+  return res.status(404).json({
+    message: error.message
+  });
 });
 
 /** Server */
