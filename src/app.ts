@@ -35,8 +35,6 @@ open({
   driver: sqlite3.Database
 }).then(async (db) => {
   // do your thing
-  await db.exec('CREATE TABLE tbl (col TEXT)')
-
 })
 
 /** Routes */
