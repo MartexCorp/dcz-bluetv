@@ -9,20 +9,22 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.sendAuthSMSToUserPhone = exports.sendSMS = void 0;
+exports.sendSMSToUserPhone = exports.sendSMS = void 0;
 const axios = require("axios").default;
+const signale = require("signale");
 const sendSMS = function (request, response) {
     const _subscriber = request.body.subscriberNumber;
     const _message = request.body.message;
-    sendAuthSMSToUserPhone(_subscriber, _message).then((result) => {
+    sendSMSToUserPhone(_subscriber, _message).then((result) => {
         return response.status(200).json({
             result: result
         });
     });
 };
 exports.sendSMS = sendSMS;
-function sendAuthSMSToUserPhone(telephone, smsBodyText) {
+function sendSMSToUserPhone(telephone, smsBodyText) {
     return __awaiter(this, void 0, void 0, function* () {
+        signale.info("Send SMS started...");
         return new Promise((resolve, reject) => {
             // @ts-ignore
             var config = {
@@ -32,16 +34,20 @@ function sendAuthSMSToUserPhone(telephone, smsBodyText) {
             };
             axios.request(config)
                 .then((response) => {
-                resolve({ status: response.status });
-                console.log("-> SMS Request Response Data");
-                // @ts-ignore
+                if (response.status == 200) {
+                    signale.success("SMS successfully sent"); // @ts-ignore
+                    resolve({ status: response.status });
+                }
+                else {
+                    signale.warn("SMS status returns code " + response.status + ". Please check your messaging API.");
+                }
             })
                 .catch((error) => {
-                console.log(error);
-                reject(error);
+                signale.error("SMS Sending Axios Request error... " + error.message);
+                reject(error.message);
             });
         });
     });
 }
-exports.sendAuthSMSToUserPhone = sendAuthSMSToUserPhone;
+exports.sendSMSToUserPhone = sendSMSToUserPhone;
 exports.default = { sendSMS: exports.sendSMS };

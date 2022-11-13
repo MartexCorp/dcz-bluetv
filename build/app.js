@@ -42,18 +42,19 @@ router.use((req, res, next) => {
     next();
 });
 (0, sqlite_1.open)({
-    filename: '../../databases/logging.db',
+    filename: '/tmp/database.db',
     driver: sqlite3_1.default.Database
 }).then((db) => __awaiter(void 0, void 0, void 0, function* () {
     // do your thing
-    yield db.exec('CREATE TABLE tbl (col TEXT)');
 }));
 /** Routes */
 router.use('/', routes_1.default);
-/** Successfully Connected to Backend */
+/** Error handling */
 router.use((req, res, next) => {
-    const message = ("Connected Sucessfully. Use Postman to Get Response");
-    return res.status(200).send(message);
+    const error = new Error('not found');
+    return res.status(404).json({
+        message: error.message
+    });
 });
 /** Server */
 const httpServer = http_1.default.createServer(router);

@@ -1,9 +1,10 @@
 import { Request, Response, NextFunction, request } from "express";
 import { AxiosResponse } from "axios";
-import { authenticator } from "otplib";
+import { totp } from "otplib";
 const axios = require("axios").default;
-authenticator.options = {digits: 4};
-const _secret = "BlueTVKey";
+const signale = require("signale");
+totp.options = {digits: 6,epoch: 1024};
+let _secret = "BlueTVKey";
 
 
 
@@ -17,14 +18,18 @@ export const generateOTP = function(request: Request, response: Response, next: 
           "[Auth]: " + "Verification code: " + (secretToken)["token"] + ". DO NOT share this code with ANYONE", secretToken)
           // eslint-disable-next-line max-len
           .then((resultObject)=>{
-            console.log("✔ SMS Sent | Success: "+ (resultObject)["status"]);
+            signale.success("SMS Sent | Success: "+ (resultObject)["status"]);
             resolve(resultObject);
-            next();
+            next(resultObject);
           }).catch((error)=>{
-          console.log(error);
-          reject(error.message);
+          signale.error("Error in SMS Auth Promise..."+error)
+          next(error);
         });
+      }).catch((error)=>{
+        signale.error("Error in Generate Token Promise..."+error)
       });
+    }).catch((error)=>{
+      signale.error("Error in Generate Secret Promise..."+error)
     });
   });
 };
@@ -42,12 +47,12 @@ async function isAuthenticated(token:string): Promise<boolean> {
 
   return new Promise(function(resolve) {
     // @ts-ignore
-    if (authenticator.verify({ token: token,secret: _secret})) {
+    if (totp.verify({ token: token,secret: _secret})) {
       console.log("✔ User Authenticated");
     } else {
       console.log("✖ Error: User NOT Authenticated");
     }
-    resolve(authenticator.verify({ token: token,secret: _secret}));
+    resolve(totp.verify({ token: token,secret: _secret}));
   });
 }
 
@@ -55,8 +60,8 @@ async function isAuthenticated(token:string): Promise<boolean> {
 async function generateSecret(): Promise<string> {
   return new Promise((resolve, reject) => {
     resolve(_secret);
-    console.log("✔ OTP SecretKey Generated");
-    console.log("-->> "+_secret+" <<--");
+    signale.success("OTP SecretKey Generated");
+    signale.note("-->> "+_secret+" <<--");
 
   });
 }
@@ -65,16 +70,16 @@ async function generateSecret(): Promise<string> {
 async function generateToken(secret: string): Promise<object> {
   return new Promise((resolve, reject) => {
     // @ts-ignore
-    resolve({secret: secret, token: authenticator.generate(secret)});
-    console.log("✔ OTP Token Generated");
-    // @ts-ignore
-    console.log("-->> "+authenticator.generate(secret)+" <<--");
+    resolve({secret: secret, token: totp.generate(secret)});
+    signale.success("OTP Token Generated");
+    signale.note("-->> "+totp.generate(secret)+" <<--");
 
   });
 }
 
 // eslint-disable-next-line require-jsdoc,max-len
 async function sendAuthSMSToUserPhone(telephone: string, smsBodyText: string, secretToken:object): Promise<object> {
+  signale.info("Sending Auth SMS to User started...")
   return new Promise((resolve, reject) => {
       // @ts-ignore
       const data = JSON.stringify({
@@ -88,17 +93,17 @@ async function sendAuthSMSToUserPhone(telephone: string, smsBodyText: string, se
       };
       axios.request(config)
         .then((response:any)=>{
-          resolve({st: secretToken, status: response.status});
-          console.log("-> SMS Request Response Data");
-          // @ts-ignore
-          console.log(JSON.stringify(response.data));
-          console.log("-> Secret-Token Data");
-          // @ts-ignore
-          console.log(JSON.stringify(secretToken));
+          if(response.status==200){
+            signale.success("SMS sent to user successfully")
+            signale.note("Secret Token: "+ secretToken)
+            resolve({st: secretToken, status: response.status});
+          }else{
+            signale.warn("SMS API response code is "+ response.status)
+          }
         })
         .catch((error: any) => {
-          console.log(error);
-          reject(error)
+          signale.error(error.message)
+          reject(error.message)
         });
   });
 }

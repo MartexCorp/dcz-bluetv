@@ -8,7 +8,7 @@ const activation_functions_1 = require("./controllers/activation/activation_func
 const notif_functions_1 = require("./controllers/notification/notif_functions");
 const router = express_1.default.Router();
 router.post("/getcode", auth_functions_1.generateOTP);
-router.get("/checkcode", auth_functions_1.checkOTP);
+router.post("/checkcode", auth_functions_1.checkOTP);
 router.post("/activate", activation_functions_1.activateOffer);
 router.post("/sms", notif_functions_1.sendSMS);
 module.exports = router;
