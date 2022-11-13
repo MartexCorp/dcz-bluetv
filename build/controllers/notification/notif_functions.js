@@ -12,6 +12,12 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.sendSMSToUserPhone = exports.sendSMS = void 0;
 const axios = require("axios").default;
 const signale = require("signale");
+signale.config({
+    displayFilename: true,
+    displayTimestamp: true,
+    displayDate: false,
+    displayLabel: true
+});
 const sendSMS = function (request, response) {
     const _subscriber = request.body.subscriberNumber;
     const _message = request.body.message;

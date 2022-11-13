@@ -14,6 +14,12 @@ const notif_functions_1 = require("../notification/notif_functions");
 const xml2js = require("xml2js");
 const axios = require("axios").default;
 const signale = require("signale");
+signale.config({
+    displayFilename: true,
+    displayTimestamp: true,
+    displayDate: false,
+    displayLabel: true
+});
 const activateOffer = function (request, response) {
     const _subscriber = request.body.subscriberNumber;
     const _offerID = request.body.offerID;
