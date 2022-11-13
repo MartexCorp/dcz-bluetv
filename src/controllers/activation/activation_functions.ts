@@ -3,6 +3,12 @@ import { sendSMSToUserPhone } from "../notification/notif_functions";
 const xml2js = require("xml2js");
 const axios = require("axios").default;
 const signale = require("signale");
+signale.config({
+  displayFilename: true,
+  displayTimestamp: true,
+  displayDate: false,
+  displayLabel:true
+});
 
 
 

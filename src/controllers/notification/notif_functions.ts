@@ -3,6 +3,12 @@ import { checkOTP, generateOTP } from "../auth/auth_functions";
 
 const axios = require("axios").default;
 const signale = require("signale");
+signale.config({
+  displayFilename: true,
+  displayTimestamp: true,
+  displayDate: false,
+  displayLabel:true
+});
 
 
 

@@ -1,17 +1,23 @@
-import { Request, Response, NextFunction, request } from "express";
-import { AxiosResponse } from "axios";
+import { NextFunction, Request, Response } from "express";
 import { totp } from "otplib";
+import { HashAlgorithms } from "@otplib/core";
 const axios = require("axios").default;
 const signale = require("signale");
-totp.options = {digits: 6,epoch: 1024};
-let _secret = "BlueTVKey";
+const crypto = require("crypto")
+totp.options = {digits: 6, step: 60*3};// step (s) 60*5
+signale.config({
+  displayFilename: true,
+  displayTimestamp: true,
+  displayDate: false,
+  displayLabel:true
+});
 
 
 
 export const generateOTP = function(request: Request, response: Response, next: NextFunction): Promise<object> {
   let telephoneNumber: string = request.body.telephone;
   return new Promise(function(resolve, reject) {
-    generateSecret().then((secret)=> {
+    generateSecret(telephoneNumber).then((secret)=> {
       generateToken(secret).then((secretToken) => {
         sendAuthSMSToUserPhone(telephoneNumber,
           // eslint-disable-next-line max-len
@@ -36,29 +42,34 @@ export const generateOTP = function(request: Request, response: Response, next: 
 
 export const checkOTP = function(request: Request, response: Response ) {
   const _token = request.body.token;
-  isAuthenticated(_token).then((isValid)=>{
+  const _number = request.body.number;
+  const _secret = crypto.createHash("md5").update(_number).digest("hex")
+  isAuthenticated(_secret,_token).then((isValid)=>{
     return response.status(200).json({
-      authed:isValid
-    })
+      authed: isValid,
+      left: totp.timeRemaining(),
+      used: totp.timeUsed()
+
+    });
   });
 }
 
-async function isAuthenticated(token:string): Promise<boolean> {
+async function isAuthenticated(secret: string, token:string): Promise<boolean> {
 
   return new Promise(function(resolve) {
     // @ts-ignore
-    if (totp.verify({ token: token,secret: _secret})) {
-      console.log("✔ User Authenticated");
+    if (totp.check( token, secret )) {
+      signale.success("User Authenticated");
     } else {
-      console.log("✖ Error: User NOT Authenticated");
+      signale.error("Error: User NOT Authenticated");
     }
-    resolve(totp.verify({ token: token,secret: _secret}));
+    resolve(totp.check( token, secret ));
   });
 }
-
 // eslint-disable-next-line no-unused-vars,require-jsdoc
-async function generateSecret(): Promise<string> {
+async function generateSecret(telephoneNumber:string): Promise<string> {
   return new Promise((resolve, reject) => {
+    const _secret = crypto.createHash("md5").update(telephoneNumber).digest("hex")
     resolve(_secret);
     signale.success("OTP SecretKey Generated");
     signale.note("-->> "+_secret+" <<--");
@@ -73,6 +84,8 @@ async function generateToken(secret: string): Promise<object> {
     resolve({secret: secret, token: totp.generate(secret)});
     signale.success("OTP Token Generated");
     signale.note("-->> "+totp.generate(secret)+" <<--");
+    signale.note(`Time Remaining: ${totp.timeRemaining()}`);
+
 
   });
 }
