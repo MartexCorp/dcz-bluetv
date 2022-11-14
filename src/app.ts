@@ -15,9 +15,9 @@ signale.config({
 
 const app: Express = express();
 /** Use CORS **/
-
+const allowedDomains = ['http://localhost:8080','http://bluetv.camtel.cm','http://165.210.33.70/']
 app.use(cors({
-  origin: 'http://localhost:8080'
+  origin: allowedDomains
 }))
 
 /** Logging */
