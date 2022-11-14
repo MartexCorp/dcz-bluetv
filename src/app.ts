@@ -8,7 +8,7 @@ const cors = require("cors");
 
 const app: Express = express();
 /** Use CORS **/
-// app.use(cors());
+app.use(cors());
 
 /** Parse the request */
 app.use(express.urlencoded({ extended: false }));
@@ -25,9 +25,10 @@ app.use((req, res, next) => {
   res.header("Access-Control-Allow-Headers", "origin, X-Requested-With,Content-Type,Accept, Authorization");
   // set the CORS method headers
   if (req.method === "OPTIONS") {
-    res.header("Access-Control-Allow-Methods", "GET PATCH DELETE POST");
-    res.header("Access-Control-Allow-Origin", "*");
-    res.header("Access-Control-Allow-Headers", "origin, X-Requested-With,Content-Type,Accept, Authorization");
+    res.setHeader("Access-Control-Allow-Origin", "*");
+    res.setHeader("Access-Control-Allow-Credentials", "true");
+    res.setHeader("Access-Control-Allow-Methods", "GET,HEAD,OPTIONS,POST,PUT");
+    res.setHeader("Access-Control-Allow-Headers", "Access-Control-Allow-Headers, Origin,Accept, X-Requested-With, Content-Type, Access-Control-Request-Method, Access-Control-Request-Headers");
     return res.status(200).json({});
   }
   next();
@@ -42,8 +43,6 @@ open({
 
 /** Routes */
 app.use("/", routes);
-
-app.use(cors());
 
 /** Error handling */
 app.use((req, res, next) => {
