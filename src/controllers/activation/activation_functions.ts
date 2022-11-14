@@ -54,9 +54,6 @@ const ChangeOptionalOffer = function(subscriber:string, offerID:string): Promise
     axios(config)
       .then(function(response) {
         signale.info("Optional Offer Axios request sent...")
-        if(response.status==200){
-
-        }
         // @ts-ignore
         xml2js.parseStringPromise(response.data).then((result: any) => {
           signale.info("Optional Offer Axios request sent...")
