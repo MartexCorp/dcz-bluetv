@@ -58,8 +58,6 @@ const ChangeOptionalOffer = function (subscriber, offerID) {
         axios(config)
             .then(function (response) {
             signale.info("Optional Offer Axios request sent...");
-            if (response.status == 200) {
-            }
             // @ts-ignore
             xml2js.parseStringPromise(response.data).then((result) => {
                 signale.info("Optional Offer Axios request sent...");

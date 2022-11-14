@@ -23,15 +23,14 @@ const cors = require("cors");
 const signale = require("signale");
 signale.config({
     displayFilename: true,
-    displayTimestamp: true,
-    displayDate: false,
     displayLabel: true,
     displayBadge: true
 });
 const app = (0, express_1.default)();
 /** Use CORS **/
+const allowedDomains = ['http://localhost:8080', 'http://165.210.33.70', 'http://165.210.33.70:80', 'http://165.210.33.70:8080'];
 app.use(cors({
-    origin: 'http://localhost:8080'
+    origin: allowedDomains
 }));
 /** Logging */
 app.use((0, morgan_1.default)('dev'));
