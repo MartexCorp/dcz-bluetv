@@ -8,7 +8,10 @@ const cors = require("cors");
 
 const app: Express = express();
 /** Use CORS **/
-app.use(cors());
+app.use(cors({
+  origin: true,
+  preflightContinue:true
+}));
 
 /** Parse the request */
 app.use(express.urlencoded({ extended: false }));
@@ -18,21 +21,6 @@ app.use(express.json());
 // @ts-ignore
 // @ts-ignore
 /** RULES OF OUR API */
-app.use((req, res, next) => {
-  // set the CORS policy
-  res.header("Access-Control-Allow-Origin", "*");
-  // set the CORS headers
-  res.header("Access-Control-Allow-Headers", "origin, X-Requested-With,Content-Type,Accept, Authorization");
-  // set the CORS method headers
-  if (req.method === "OPTIONS") {
-    res.setHeader("Access-Control-Allow-Origin", "*");
-    res.setHeader("Access-Control-Allow-Credentials", "true");
-    res.setHeader("Access-Control-Allow-Methods", "GET,HEAD,OPTIONS,POST,PUT");
-    res.setHeader("Access-Control-Allow-Headers", "Access-Control-Allow-Headers, Origin,Accept, X-Requested-With, Content-Type, Access-Control-Request-Method, Access-Control-Request-Headers");
-    return res.status(200).json({});
-  }
-  next();
-});
 
 open({
   filename: "/tmp/database.db",
@@ -54,5 +42,5 @@ app.use((req, res, next) => {
 
 /** Server */
 const httpServer = http.createServer(app);
-const PORT: any = process.env.PORT ?? 9173;
+const PORT: any = process.env.PORT ?? 8080;
 httpServer.listen(PORT, () => console.log("The server is running on port " + `${PORT}`));
