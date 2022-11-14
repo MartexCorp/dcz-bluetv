@@ -15,48 +15,38 @@ var _a;
 Object.defineProperty(exports, "__esModule", { value: true });
 const http_1 = __importDefault(require("http"));
 const express_1 = __importDefault(require("express"));
-const morgan_1 = __importDefault(require("morgan"));
 const routes_1 = __importDefault(require("./routes"));
 const sqlite_1 = require("sqlite");
 const sqlite3_1 = __importDefault(require("sqlite3"));
-const router = (0, express_1.default)();
-/** Logging */
-router.use((0, morgan_1.default)('dev'));
+const cors = require("cors");
+const app = (0, express_1.default)();
+/** Use CORS **/
+app.use(cors({
+    origin: 'http://localhost:8080'
+}));
 /** Parse the request */
-router.use(express_1.default.urlencoded({ extended: false }));
+app.use(express_1.default.urlencoded({ extended: false }));
 /** Takes care of JSON data */
-router.use(express_1.default.json());
+app.use(express_1.default.json());
 // @ts-ignore
 // @ts-ignore
 /** RULES OF OUR API */
-router.use((req, res, next) => {
-    // set the CORS policy
-    res.header('Access-Control-Allow-Origin', '*');
-    // set the CORS headers
-    res.header('Access-Control-Allow-Headers', 'origin, X-Requested-With,Content-Type,Accept, Authorization');
-    // set the CORS method headers
-    if (req.method === 'OPTIONS') {
-        res.header('Access-Control-Allow-Methods', 'GET PATCH DELETE POST');
-        return res.status(200).json({});
-    }
-    next();
-});
 (0, sqlite_1.open)({
-    filename: '/tmp/database.db',
+    filename: "/tmp/database.db",
     driver: sqlite3_1.default.Database
 }).then((db) => __awaiter(void 0, void 0, void 0, function* () {
     // do your thing
 }));
 /** Routes */
-router.use('/', routes_1.default);
+app.use("/", routes_1.default);
 /** Error handling */
-router.use((req, res, next) => {
-    const error = new Error('not found');
+app.use((req, res, next) => {
+    const error = new Error("not found");
     return res.status(404).json({
         message: error.message
     });
 });
 /** Server */
-const httpServer = http_1.default.createServer(router);
+const httpServer = http_1.default.createServer(app);
 const PORT = (_a = process.env.PORT) !== null && _a !== void 0 ? _a : 9173;
 httpServer.listen(PORT, () => console.log("The server is running on port " + `${PORT}`));

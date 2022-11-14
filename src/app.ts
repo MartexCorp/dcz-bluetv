@@ -9,9 +9,8 @@ const cors = require("cors");
 const app: Express = express();
 /** Use CORS **/
 app.use(cors({
-  origin: true,
-  preflightContinue:true
-}));
+  origin: "http://localhost:8080"
+}))
 
 /** Parse the request */
 app.use(express.urlencoded({ extended: false }));
@@ -42,5 +41,5 @@ app.use((req, res, next) => {
 
 /** Server */
 const httpServer = http.createServer(app);
-const PORT: any = process.env.PORT ?? 8080;
+const PORT: any = process.env.PORT ?? 9173;
 httpServer.listen(PORT, () => console.log("The server is running on port " + `${PORT}`));

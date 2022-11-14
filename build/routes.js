@@ -7,6 +7,13 @@ const auth_functions_1 = require("./controllers/auth/auth_functions");
 const activation_functions_1 = require("./controllers/activation/activation_functions");
 const notif_functions_1 = require("./controllers/notification/notif_functions");
 const router = express_1.default.Router();
+/*const cors = require("cors");
+
+
+router.use(cors({
+  origin: true,
+  preflightContinue:true
+}));*/
 router.post("/getcode", auth_functions_1.generateOTP);
 router.post("/checkcode", auth_functions_1.checkOTP);
 router.post("/activate", activation_functions_1.activateOffer);

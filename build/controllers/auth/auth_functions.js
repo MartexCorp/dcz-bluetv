@@ -14,7 +14,7 @@ const otplib_1 = require("otplib");
 const axios = require("axios").default;
 const signale = require("signale");
 const crypto = require("crypto");
-otplib_1.totp.options = { digits: 6, step: 60 * 3 }; // step (s) 60*5
+otplib_1.totp.options = { digits: 6, step: 300 }; // step (s) 60*5
 signale.config({
     displayFilename: true,
     displayTimestamp: true,
