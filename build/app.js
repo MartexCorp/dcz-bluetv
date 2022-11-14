@@ -21,11 +21,6 @@ const sqlite_1 = require("sqlite");
 const sqlite3_1 = __importDefault(require("sqlite3"));
 const cors = require("cors");
 const signale = require("signale");
-const app = (0, express_1.default)();
-/** Use CORS **/
-app.use(cors({
-    origin: 'http://localhost:8080'
-}));
 signale.config({
     displayFilename: true,
     displayTimestamp: true,
@@ -33,6 +28,11 @@ signale.config({
     displayLabel: true,
     displayBadge: true
 });
+const app = (0, express_1.default)();
+/** Use CORS **/
+app.use(cors({
+    origin: 'http://localhost:8080'
+}));
 /** Logging */
 app.use((0, morgan_1.default)('dev'));
 /** Parse the request */

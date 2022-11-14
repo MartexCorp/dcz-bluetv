@@ -15,13 +15,6 @@ const axios = require("axios").default;
 const signale = require("signale");
 const crypto = require("crypto");
 otplib_1.totp.options = { digits: 6, step: 300 }; // step (s) 60*5
-signale.config({
-    displayFilename: true,
-    displayTimestamp: true,
-    displayDate: false,
-    displayLabel: true,
-    displayBadge: true
-});
 const generateOTP = function (request, response, next) {
     let telephoneNumber = request.body.telephone;
     return new Promise(function (resolve, reject) {

@@ -4,7 +4,7 @@
   "description": "",
   "main": "src/app.ts",
   "scripts": {
-    "deploy": "pm2 start -i --no-daemon build/app.js --watch",
+    "deploy": "pm2 start -i --no-daemon build/app.js -- --color --watch",
     "stop": "pm2 stop build/app.js",
     "dev": "nodemon src/app.ts",
     "build": "rm -rf build/ && tsc"

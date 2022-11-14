@@ -5,13 +5,7 @@ const axios = require("axios").default;
 const signale = require("signale");
 const crypto = require("crypto")
 totp.options = {digits: 6, step: 300};// step (s) 60*5
-signale.config({
-  displayFilename: true,
-  displayTimestamp: true,
-  displayDate: false,
-  displayLabel:true,
-  displayBadge:true
-});
+
 
 
 

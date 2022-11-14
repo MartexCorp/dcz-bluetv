@@ -6,6 +6,11 @@ import { open } from "sqlite";
 import sqlite3 from "sqlite3";
 const cors = require("cors");
 const signale = require("signale");
+signale.config({
+  displayFilename: true,
+  displayLabel:true,
+  displayBadge:true
+});
 
 
 const app: Express = express();
@@ -14,13 +19,7 @@ const app: Express = express();
 app.use(cors({
   origin: 'http://localhost:8080'
 }))
-signale.config({
-  displayFilename: true,
-  displayTimestamp: true,
-  displayDate: false,
-  displayLabel:true,
-  displayBadge:true
-});
+
 /** Logging */
 app.use(morgan('dev'));
 /** Parse the request */
