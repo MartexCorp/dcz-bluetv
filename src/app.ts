@@ -11,7 +11,7 @@ const router: Express = express();
 router.use(cors());
 router.use(
   cors({
-    origin: ["http://localhost:8080","http://localhost:9173"],
+    origin: "*",
   })
 );
 
