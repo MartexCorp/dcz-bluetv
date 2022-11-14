@@ -18,7 +18,8 @@ signale.config({
     displayFilename: true,
     displayTimestamp: true,
     displayDate: false,
-    displayLabel: true
+    displayLabel: true,
+    displayBadge: true
 });
 const activateOffer = function (request, response) {
     const _subscriber = request.body.subscriberNumber;

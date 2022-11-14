@@ -1,17 +1,28 @@
-import http from "http";
-import express, { Express } from "express";
-import routes from "./routes";
+import http from 'http';
+import express, { Express } from 'express';
+import morgan from 'morgan';
+import routes from './routes';
 import { open } from "sqlite";
 import sqlite3 from "sqlite3";
 const cors = require("cors");
+const signale = require("signale");
 
 
 const app: Express = express();
 /** Use CORS **/
-app.use(cors({
-  origin: "http://localhost:8080"
-}))
 
+app.use(cors({
+  origin: 'http://localhost:8080'
+}))
+signale.config({
+  displayFilename: true,
+  displayTimestamp: true,
+  displayDate: false,
+  displayLabel:true,
+  displayBadge:true
+});
+/** Logging */
+app.use(morgan('dev'));
 /** Parse the request */
 app.use(express.urlencoded({ extended: false }));
 /** Takes care of JSON data */

@@ -9,7 +9,8 @@ signale.config({
   displayFilename: true,
   displayTimestamp: true,
   displayDate: false,
-  displayLabel:true
+  displayLabel:true,
+  displayBadge:true
 });
 
 
