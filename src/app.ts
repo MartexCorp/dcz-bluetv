@@ -11,8 +11,10 @@ const router: Express = express();
 router.use(cors());
 router.use(
   cors({
-    origin: true})
+    origin: ["http://localhost:8080","http://localhost:9173"],
+  })
 );
+
 /** Parse the request */
 router.use(express.urlencoded({ extended: false }));
 /** Takes care of JSON data */
