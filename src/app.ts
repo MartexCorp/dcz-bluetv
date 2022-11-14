@@ -8,12 +8,12 @@ const cors = require("cors");
 
 const router: Express = express();
 /** Use CORS **/
-router.use(cors());
-router.use(
-  cors({
-    origin: "*",
-  })
-);
+const corsOptions ={
+  origin:"http://localhost:8080",
+  credentials:true,            //access-control-allow-credentials:true
+  optionSuccessStatus:200
+}
+router.use(cors(corsOptions));
 
 /** Parse the request */
 router.use(express.urlencoded({ extended: false }));
