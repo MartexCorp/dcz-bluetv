@@ -9,8 +9,7 @@ const cors = require("cors");
 const router: Express = express();
 /** Use CORS **/
 const corsOptions ={
-  origin:"http://localhost:8080",
-  credentials:true,            //access-control-allow-credentials:true
+  origin: ["http://localhost:8080", "http://bluetv.camtel.cm"],
   optionSuccessStatus:200
 }
 router.use(cors(corsOptions));
