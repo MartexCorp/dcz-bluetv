@@ -14,10 +14,14 @@ export const activateOffer = function(request: Request, response: Response){
   ChangeOptionalOffer(_subscriber,_offerID).then((result)=>{
     if(result["resultCode"]==405000000){
       signale.success("Offer Subscription Successful at CRM")
-      addCustomerMwareTV(_subscriber).then(async (result)=>{
-        await sendSMSToUserPhone(_subscriber,"[Auth]: login:"+result["id"]+"\n"+"pass:"+result["pass"]+"\n"+"Do not share this code with anyone else!");
-        console.log("✔ Offer Subscription Successful on MWareTV");
-        console.log(result);
+      addCustomerMwareTV(_subscriber).then((result)=>{
+        sendSMSToUserPhone(_subscriber,"[Auth]: login:"+result["id"]+"\n"+"pass:"+result["pass"]+"\n"+"Do not share this code with anyone else!").then((smsResultStatus)=>{
+         signale.info(`SMS Response Status ${smsResultStatus}`);
+        }).catch((smsErrorMessage)=>{
+
+        })
+        signale.success("Offer Subscription Successful on MWareTV");
+        signale.note(result);
       });
     }else{
       console.log("✖ Offer Subscription went through but was not successful at CRM");
