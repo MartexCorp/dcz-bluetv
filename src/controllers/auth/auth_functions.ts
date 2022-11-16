@@ -1,6 +1,7 @@
 import { NextFunction, Request, Response } from "express";
 import { totp } from "otplib";
 import { HashAlgorithms } from "@otplib/core";
+import { sendSMSToUserPhone } from "../notification/notif_functions";
 const axios = require("axios").default;
 const signale = require("signale");
 const crypto = require("crypto")
@@ -13,24 +14,30 @@ export const generateOTP = function(request: Request, response: Response, next: 
   let telephoneNumber: string = request.body.telephone;
   return new Promise(function(resolve, reject) {
     generateSecret(telephoneNumber).then((secret)=> {
-      generateToken(secret).then((secretToken) => {
+      generateToken(secret).then((secretTokenObject) => {
         sendAuthSMSToUserPhone(telephoneNumber,
           // eslint-disable-next-line max-len
-          "[Auth]: " + "Verification code: " + (secretToken)["token"] + ". DO NOT share this code with ANYONE", secretToken)
+          "[Auth]: " + "Verification code: " + (secretTokenObject)["token"] + ". DO NOT share this code with ANYONE", secretTokenObject)
           // eslint-disable-next-line max-len
-          .then((resultObject)=>{
-            signale.success("SMS Sent | Success: "+ (resultObject)["status"]);
-            resolve(resultObject);
-            next(resultObject);
+          .then((resultStatus)=>{
+            signale.success("SMS Sent | Success: "+ resultStatus);
+            let statusObject = {secret:"OK", token: "OK", sms:"OK"}
+            resolve(statusObject);
+            return response.status(200).json(statusObject)
           }).catch((error)=>{
           signale.error("Error in SMS Auth Promise..."+error)
-          next(error);
+          let statusObject = {secret:"OK", token: "OK", sms:error.message}
+          return response.json(statusObject)
         });
       }).catch((error)=>{
         signale.error("Error in Generate Token Promise..."+error)
+        let statusObject = {secret:"OK", token:error.message}
+        return response.json(statusObject)
       });
     }).catch((error)=>{
       signale.error("Error in Generate Secret Promise..."+error)
+      let statusObject = {secret:error.message}
+      return response.json(statusObject)
     });
   });
 };
@@ -44,7 +51,6 @@ export const checkOTP = function(request: Request, response: Response ) {
       authed: isValid,
       left: totp.timeRemaining(),
       used: totp.timeUsed()
-
     });
   });
 }
@@ -86,34 +92,17 @@ async function generateToken(secret: string): Promise<object> {
 }
 
 // eslint-disable-next-line require-jsdoc,max-len
-async function sendAuthSMSToUserPhone(telephone: string, smsBodyText: string, secretToken:object): Promise<object> {
-  signale.info("Sending Auth SMS to User started...")
+async function sendAuthSMSToUserPhone(telephone: string, smsBodyText: string, secretTokenObject:object):Promise<number> {
   return new Promise((resolve, reject) => {
-      // @ts-ignore
-      const data = JSON.stringify({
-        "recipient": "+237" + telephone,
-        "text": smsBodyText,
-      });
-      var config = {
-        method: "get",
-        url: "http://172.20.24.77:9501/api?action=sendmessage&username=mwaretv&password=mwaretv1234&recipient=237"+telephone+"&messagetype=SMS:TEXT&messagedata="+smsBodyText,
-        headers: { }
-      };
-      axios.request(config)
-        .then((response:any)=>{
-          if(response.status==200){
-            signale.success("SMS sent to user successfully")
-            signale.note("Secret Token: "+ secretToken)
-            resolve({st: secretToken, status: response.status});
-          }else{
-            signale.warn("SMS API response code is "+ response.status)
-          }
-        })
-        .catch((error: any) => {
-          signale.error(error.message)
-          reject(error.message)
-        });
-  });
+    signale.info("Sending Auth SMS to User started...")
+    sendSMSToUserPhone(telephone,smsBodyText).then((SMSResponseStatus)=>{
+      signale.success(`SMS Response status = ${SMSResponseStatus["status"]}`)
+      resolve(SMSResponseStatus["status"]);
+    }).catch((error)=>{
+      signale.error("Error in SendAuthSMSToUserPhone Promise...")
+      reject(error);
+    })
+  })
 }
 
 

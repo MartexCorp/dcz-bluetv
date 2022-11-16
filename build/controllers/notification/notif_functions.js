@@ -9,30 +9,27 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.sendSMSToUserPhone = exports.sendSMS = void 0;
+exports.sendSMSToUserPhone = void 0;
 const axios = require("axios").default;
 const signale = require("signale");
-const sendSMS = function (request, response) {
-    const _subscriber = request.body.subscriberNumber;
-    const _message = request.body.message;
-    sendSMSToUserPhone(_subscriber, _message).then((result) => {
-        return response.status(200).json({
-            result: result
-        });
-    });
-};
-exports.sendSMS = sendSMS;
 function sendSMSToUserPhone(telephone, smsBodyText) {
     return __awaiter(this, void 0, void 0, function* () {
         signale.info("Send SMS started...");
         return new Promise((resolve, reject) => {
             // @ts-ignore
+            var data = JSON.stringify({
+                "phoneNumber": `${telephone}`,
+                "code": `${smsBodyText}`
+            });
             var config = {
-                method: "get",
-                url: "http://172.20.24.77:9501/api?action=sendmessage&username=mwaretv&password=mwaretv1234&recipient=237" + telephone + "&messagetype=SMS:TEXT&messagedata=" + smsBodyText,
-                headers: {}
+                method: 'post',
+                url: 'http://192.168.240.233:80/SMSWebServiceApp/webresources/Configs/sendTVSMS',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                data: data
             };
-            axios.request(config)
+            axios(config)
                 .then((response) => {
                 if (response.status == 200) {
                     signale.success("SMS successfully sent"); // @ts-ignore
@@ -50,4 +47,4 @@ function sendSMSToUserPhone(telephone, smsBodyText) {
     });
 }
 exports.sendSMSToUserPhone = sendSMSToUserPhone;
-exports.default = { sendSMS: exports.sendSMS };
+exports.default = { sendSMSToUserPhone };
