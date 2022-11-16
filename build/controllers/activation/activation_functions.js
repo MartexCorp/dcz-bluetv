@@ -20,13 +20,16 @@ const activateOffer = function (request, response) {
     ChangeOptionalOffer(_subscriber, _offerID).then((result) => {
         if (result["resultCode"] == 405000000) {
             signale.success("Offer Subscription Successful at CRM");
-            addCustomerMwareTV(_subscriber).then((result) => {
-                (0, notif_functions_1.sendSMSToUserPhone)(_subscriber, "[Auth]: login:" + result["id"] + "\n" + "pass:" + result["pass"] + "\n" + "Do not share this code with anyone else!").then((smsResultStatus) => {
-                    signale.info(`SMS Response Status ${smsResultStatus}`);
-                }).catch((smsErrorMessage) => {
+            getSubscriberDetails(_subscriber).then((subscriberObject) => {
+                addCustomerMwareTV(_subscriber, subscriberObject["name"]).then((result) => {
+                    (0, notif_functions_1.sendSMSToUserPhone)(_subscriber, "[Auth]: login:" + result["id"] + "\n" + "pass:" + result["pass"] + "\n" + "Do not share this code with anyone else!").then((smsResultStatus) => {
+                        signale.info(`SMS Response Status ${smsResultStatus}`);
+                    }).catch((smsErrorMessage) => {
+                        signale.error(smsErrorMessage);
+                    });
+                    signale.success("Offer Subscription Successful on MWareTV");
+                    signale.note(result);
                 });
-                signale.success("Offer Subscription Successful on MWareTV");
-                signale.note(result);
             });
         }
         else {
@@ -43,51 +46,59 @@ const activateOffer = function (request, response) {
     //next();
 };
 exports.activateOffer = activateOffer;
-const ChangeOptionalOffer = function (subscriber, offerID) {
-    signale.info("CRM Change Optional Offer started...");
-    return new Promise(function (resolve, reject) {
-        // @ts-ignore
-        const data = "<soapenv:Envelope xmlns:soapenv=\"http://schemas.xmlsoap.org/soap/envelope/\" xmlns:msg=\"http://oss.huawei.com/business/intf/webservice/subscribe/msg\">\n    <soapenv:Header/>\n    <soapenv:Body>\n        <msg:ChangeOptionalOfferRequestMsg>\n            <RequestHeader>\n                <msg:Version>1</msg:Version> <!--DO NOT TOUCH-->\n                <msg:TransactionId>1</msg:TransactionId> <!--DO NOT TOUCH-->\n                <msg:SequenceId>1</msg:SequenceId> <!--DO NOT TOUCH-->\n                <msg:RequestType>Event</msg:RequestType> <!--DO NOT TOUCH-->\n                <msg:ThirdPartyID>156</msg:ThirdPartyID> <!--SOAP Client / Blue Recharge App ID-->\n                <msg:SerialNo>" + new Date().valueOf().toString() + "</msg:SerialNo> <!--Real Transaction ID to be set by SOAP Client-->\n                <msg:Remark>wsr</msg:Remark> <!--Transaction Remark / Comment-->\n            </RequestHeader>\n            <ChangeOptionalOfferRequest>\n                <msg:SubscriberNo>" + subscriber + "</msg:SubscriberNo> <!--Number benefitting from Activation -->\n                <msg:OptionalOffer>\n                    <msg:Id>" + offerID + "</msg:Id> <!--Optional Offer ID-->\n                    <msg:OperationType>1</msg:OperationType> <!--DO NOT TOUCH-->\n                </msg:OptionalOffer>\n                <msg:PrimaryOfferOrderKey>?</msg:PrimaryOfferOrderKey> <!--DO NOT TOUCH-->\n            </ChangeOptionalOfferRequest>\n        </msg:ChangeOptionalOfferRequestMsg>\n    </soapenv:Body>\n</soapenv:Envelope>";
-        const config = {
-            method: "post",
-            url: "http://192.168.240.7:8280/services/Proxy_SubscribeOptonnal",
-            headers: {
-                "Content-Type": "text/xml",
-                "SOAPAction": "changeOptionalOffer",
-                "Cookie": "JSESSIONID=0000SofIn7txUf9htTuC0GrV4Gw:-1",
-            },
-            data: data,
-        };
-        axios(config)
-            .then(function (response) {
-            signale.info("Optional Offer Axios request sent...");
+function ChangeOptionalOffer(subscriber, offerID) {
+    return __awaiter(this, void 0, void 0, function* () {
+        signale.info("CRM Change Optional Offer started...");
+        return new Promise(function (resolve, reject) {
             // @ts-ignore
-            xml2js.parseStringPromise(response.data).then((result) => {
+            const data = "<soapenv:Envelope xmlns:soapenv=\"http://schemas.xmlsoap.org/soap/envelope/\" xmlns:msg=\"http://oss.huawei.com/business/intf/webservice/subscribe/msg\">\n    <soapenv:Header/>\n    <soapenv:Body>\n        <msg:ChangeOptionalOfferRequestMsg>\n            <RequestHeader>\n                <msg:Version>1</msg:Version> <!--DO NOT TOUCH-->\n                <msg:TransactionId>1</msg:TransactionId> <!--DO NOT TOUCH-->\n                <msg:SequenceId>1</msg:SequenceId> <!--DO NOT TOUCH-->\n                <msg:RequestType>Event</msg:RequestType> <!--DO NOT TOUCH-->\n                <msg:ThirdPartyID>156</msg:ThirdPartyID> <!--SOAP Client / Blue Recharge App ID-->\n                <msg:SerialNo>" + new Date().valueOf().toString() + "</msg:SerialNo> <!--Real Transaction ID to be set by SOAP Client-->\n                <msg:Remark>wsr</msg:Remark> <!--Transaction Remark / Comment-->\n            </RequestHeader>\n            <ChangeOptionalOfferRequest>\n                <msg:SubscriberNo>" + subscriber + "</msg:SubscriberNo> <!--Number benefitting from Activation -->\n                <msg:OptionalOffer>\n                    <msg:Id>" + offerID + "</msg:Id> <!--Optional Offer ID-->\n                    <msg:OperationType>1</msg:OperationType> <!--DO NOT TOUCH-->\n                </msg:OptionalOffer>\n                <msg:PrimaryOfferOrderKey>?</msg:PrimaryOfferOrderKey> <!--DO NOT TOUCH-->\n            </ChangeOptionalOfferRequest>\n        </msg:ChangeOptionalOfferRequestMsg>\n    </soapenv:Body>\n</soapenv:Envelope>";
+            const config = {
+                method: "post",
+                url: "http://192.168.240.7:8280/services/Proxy_SubscribeOptonnal",
+                headers: {
+                    "Content-Type": "text/xml",
+                    "SOAPAction": "changeOptionalOffer",
+                    "Cookie": "JSESSIONID=0000SofIn7txUf9htTuC0GrV4Gw:-1",
+                },
+                data: data,
+            };
+            axios(config)
+                .then(function (response) {
                 signale.info("Optional Offer Axios request sent...");
                 // @ts-ignore
-                // eslint-disable-next-line max-len
-                const responseCode = result["soapenv:Envelope"]["soapenv:Body"][0]["msg:ChangeOptionalOfferResultMsg"][0]["ResultHeader"][0]["msg:ResultCode"][0];
-                // eslint-disable-next-line max-len
-                const responseMessage = result["soapenv:Envelope"]["soapenv:Body"][0]["msg:ChangeOptionalOfferResultMsg"][0]["ResultHeader"][0]["msg:ResultDesc"][0];
-                // eslint-disable-next-line max-len
-                signale.note(`CRM OfferSubscribe Result Code: ${responseCode}`);
-                signale.note(`CRM OfferSubscribe Result Message: ${{ responseMessage }}`);
-                resolve({ resultCode: responseCode,
-                    resultMessage: responseMessage });
-            }).catch(function (error) {
-                signale.error("Error has occurred in the AddCustomer Axios Request... " + error.message);
-                reject(error.message);
+                xml2js.parseStringPromise(response.data).then((result) => {
+                    signale.info("Optional Offer Axios request sent...");
+                    // @ts-ignore
+                    // eslint-disable-next-line max-len
+                    const responseCode = result["soapenv:Envelope"]["soapenv:Body"][0]["msg:ChangeOptionalOfferResultMsg"][0]["ResultHeader"][0]["msg:ResultCode"][0];
+                    // eslint-disable-next-line max-len
+                    const responseMessage = result["soapenv:Envelope"]["soapenv:Body"][0]["msg:ChangeOptionalOfferResultMsg"][0]["ResultHeader"][0]["msg:ResultDesc"][0];
+                    // eslint-disable-next-line max-len
+                    signale.note(`CRM OfferSubscribe Result Code: ${responseCode}`);
+                    signale.note(`CRM OfferSubscribe Result Message: ${{ responseMessage }}`);
+                    resolve({ resultCode: responseCode,
+                        resultMessage: responseMessage });
+                }).catch(function (error) {
+                    signale.error("Error has occurred in the AddCustomer Axios Request... " + error.message);
+                    reject(error.message);
+                });
             });
         });
     });
-};
-function addCustomerMwareTV(telephoneNumber) {
+}
+function addCustomerMwareTV(telephoneNumber, customerName) {
     return __awaiter(this, void 0, void 0, function* () {
         signale.info("MWare Add Customer started...");
+        let fName, mName, lName, mlName;
+        fName = customerName.toString().split(" ")[0];
+        mName = customerName.toString().split(" ")[1];
+        lName = customerName.toString().split(" ")[2];
+        mlName = mName + " " + lName;
+        signale.info(`Names are ${fName} ${mlName}`);
         return new Promise((resolve, reject) => {
             const config = {
                 method: "post",
-                url: "https://camtel.imsserver2.tv/api/AddCustomer/addCustomer?productid=1&subscriptionlengthinmonths=0&subscriptionlengthindays=1&renewalinterval=1&cmsService=Content&crmService=Sandbox&reseller_id=0&order_id=0&authToken=a81d6672-28f8-4e1b-88ad-b233195d12f2&StartSubscriptionFromFirstLogin=true&sendMail=false&firstname=David&lastname=Martex&street=Happy2000&zipcode=13062&city=Yaounde&state=CE&country=Cameroon&phone=+237620050328&mobile=+237655345987&email=620050328@camtel.cm&userid=+237" + telephoneNumber + "&sendSMS=false",
+                url: `https://camtel.imsserver2.tv/api/AddCustomer/addCustomer?productid=1&subscriptionlengthinmonths=0&subscriptionlengthindays=1&renewalinterval=1&cmsService=Content&crmService=Sandbox&reseller_id=0&order_id=0&authToken=a81d6672-28f8-4e1b-88ad-b233195d12f2&StartSubscriptionFromFirstLogin=true&sendMail=false&firstname=${fName}&lastname=${mlName}&street=Happy2000&zipcode=13062&city=Yaounde&state=CE&country=Cameroon&phone=+237${telephoneNumber}&mobile=0&email=${telephoneNumber}@camtel.cm&userid=${telephoneNumber}&sendSMS=false`,
                 headers: {}
             };
             axios(config)
@@ -102,6 +113,7 @@ function addCustomerMwareTV(telephoneNumber) {
                         signale.success("Successfully retrieved Login and Pass from MWareTV");
                         signale.note("MWareTv Id: " + id);
                         signale.note("MWareTV Pass: " + pass);
+                        signale.note("MWareTV Customer Name " + customerName);
                         resolve({ id: credentialsJSON["loginid"], pass: credentialsJSON["password"] });
                     }
                     else {
@@ -116,6 +128,43 @@ function addCustomerMwareTV(telephoneNumber) {
                 .catch(function (error) {
                 signale.error("Error has occurred in the AddCustomer Axios Request... " + error.message);
                 reject(error.message);
+            });
+        });
+    });
+}
+function getSubscriberDetails(telephoneNumber) {
+    return __awaiter(this, void 0, void 0, function* () {
+        signale.info("Getting Subscriber details started...");
+        return new Promise((resolve, reject) => {
+            const data = "<soap:Envelope xmlns:soap=\"http://www.w3.org/2003/05/soap-envelope\" xmlns:msg=\"http://oss.huawei.com/business/intf/webservice/query/msg\">\n   <soap:Header/>\n   <soap:Body>\n      <msg:QuerySubscriberRequestMsg>\n         <RequestHeader>\n         </RequestHeader>\n         <QuerySubscriberRequest>\n            <msg:QueryType>0</msg:QueryType>\n            <msg:Value>" + telephoneNumber + "</msg:Value>\n         </QuerySubscriberRequest>\n      </msg:QuerySubscriberRequestMsg>\n   </soap:Body>\n</soap:Envelope>";
+            const config = {
+                method: "post",
+                url: "http://192.168.240.7:8280/services/FullQueryCustomer.FullQueryCustomerHttpSoap12Endpoint",
+                headers: {
+                    "Content-Type": "application/soap+xml",
+                    "SOAPAction": "querySubscriber"
+                },
+                data: data
+            };
+            axios(config)
+                .then(function (response) {
+                signale.info("Get Subscriber Details request sent...");
+                // @ts-ignore
+                xml2js.parseStringPromise(response.data).then((result) => {
+                    // @ts-ignore
+                    // eslint-disable-next-line max-len
+                    const responseCode = result["soapenv:Envelope"]["soapenv:Body"][0]["msg:QuerySubscriberResponseMsg"][0]["ResultHeader"][0]["msg:ResultCode"][0];
+                    const responseMessage = result["soapenv:Envelope"]["soapenv:Body"][0]["msg:QuerySubscriberResponseMsg"][0]["ResultHeader"][0]["msg:ResultDesc"][0];
+                    const subscriberName = result["soapenv:Envelope"]["soapenv:Body"][0]["msg:QuerySubscriberResponseMsg"][0]["QuerySubscriberResponse"][0]["msg:Customer"][0]["msg:CustomerName"][0];
+                    // eslint-disable-next-line max-len
+                    signale.success("Subscriber details queried and receive successfully");
+                    resolve({ code: responseCode,
+                        message: responseMessage,
+                        name: subscriberName });
+                });
+            }).catch((error) => {
+                signale.error("Error has occurred in the QuerySubscriber Axios Request... " + error.message);
+                reject(error);
             });
         });
     });

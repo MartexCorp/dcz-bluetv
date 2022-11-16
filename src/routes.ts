@@ -8,6 +8,5 @@ const router = express.Router();
 router.post("/getcode",generateOTP)
 router.post("/checkcode", checkOTP);
 router.post("/activate", activateOffer)
-router.post("/sms",sendSMS)
 
 export = router;
