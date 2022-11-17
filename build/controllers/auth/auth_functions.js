@@ -53,6 +53,7 @@ const checkOTP = function (request, response) {
     const _number = request.body.number;
     const _secret = crypto.createHash("md5").update(_number).digest("hex");
     isAuthenticated(_secret, _token).then((isValid) => {
+        signale.note(`Secret is ${_secret}, Token is ${_token}, Number is ${_number} and Authed is ${isValid}`);
         return response.status(200).json({
             authed: isValid,
             left: otplib_1.totp.timeRemaining(),
