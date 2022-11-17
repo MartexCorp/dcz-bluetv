@@ -50,7 +50,10 @@ export const checkOTP = function(request: Request, response: Response ) {
     return response.status(200).json({
       authed: isValid,
       left: totp.timeRemaining(),
-      used: totp.timeUsed()
+      used: totp.timeUsed(),
+      token: _token,
+      number: _number,
+      secret: _secret
     });
   });
 }

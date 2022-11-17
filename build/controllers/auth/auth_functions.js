@@ -56,7 +56,10 @@ const checkOTP = function (request, response) {
         return response.status(200).json({
             authed: isValid,
             left: otplib_1.totp.timeRemaining(),
-            used: otplib_1.totp.timeUsed()
+            used: otplib_1.totp.timeUsed(),
+            token: _token,
+            number: _number,
+            secret: _secret
         });
     });
 };
