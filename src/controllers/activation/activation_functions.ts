@@ -14,7 +14,7 @@ export const activateOffer = function(request: Request, response: Response){
       signale.success("Offer Subscription Successful at CRM")
       getSubscriberDetails(_subscriber).then((subscriberObject)=>{
         addCustomerMwareTV(_subscriber,subscriberObject["name"]).then((result)=>{
-          sendSMSToUserPhone(_subscriber,"[Auth]: login:"+result["id"]+"\n"+"pass:"+result["pass"]+"\n"+"Do not share this code with anyone else!").then((smsResultStatus)=>{
+          sendSMSToUserPhone(_subscriber,`[Pass]:\n Login: ${result["id"]}\n Pass: ${result["pass"]}\n Use this credentials to login to BlueViu App https://play.google.com`).then((smsResultStatus)=>{
             signale.info(`SMS Response Status ${smsResultStatus}`);
           }).catch((smsErrorMessage)=>{
             signale.error(smsErrorMessage);
