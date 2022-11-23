@@ -29,19 +29,19 @@ const activateOffer = function (request, response) {
                                 let statusObject = { subscribeCRM: "OK", checkExistMWare: "OK", getSubscriberDetails: "OK", addCustomerMWare: "OK", sendSMStoUser: "OK" };
                                 return response.json(statusObject);
                             }).catch((error) => {
-                                signale.error("Send SMS to User Error => " + error.response.data);
+                                signale.error("Send SMS to User Error => " + error.response);
                                 let statusObject = { subscribeCRM: "OK", checkExistMWare: "OK", getSubscriberDetails: "OK", addCustomerMWare: "OK", sendSMStoUser: error.message };
                                 return response.json(statusObject);
                             });
                             signale.success("Offer Subscription Successful on MWareTV");
                             signale.note(result);
                         }).catch((error) => {
-                            signale.error("Add Customer MWareTV Error => " + error.response.data);
+                            signale.error("Add Customer MWareTV Error => " + error.response);
                             let statusObject = { subscribeCRM: "OK", checkExistMWare: "OK", getSubscriberDetails: "OK", addCustomerMWare: error.message };
                             return response.json(statusObject);
                         });
                     }).catch((error) => {
-                        signale.error("CRM Get Subscriber Details Error => " + error.response.data);
+                        signale.error("CRM Get Subscriber Details Error => " + error.response);
                         let statusObject = { subscribeCRM: "OK", checkExistMWare: "OK", getSubscriberDetails: error.message };
                         return response.json(statusObject);
                     });
@@ -51,22 +51,19 @@ const activateOffer = function (request, response) {
                     return response.json(statusObject);
                 }
             }).catch((error) => {
-                signale.error("CRM Subscription Error => " + error.response.data);
+                signale.error("CRM Subscription Error => " + error.response);
                 let statusObject = { subscribeCRM: "OK", checkExistMWare: error.message };
                 return response.json(statusObject);
             });
         }
         else {
-            console.log("✖ Offer Subscription went through but was not successful at CRM");
-            console.log(" Result Code -->> " + result["resultCode"]);
-            console.log(" Result Message -->> " + result["resultMessage"]);
+            signale.error("Offer Subscription went through but was not successful at CRM");
+            signale.info(" Result Code -->> " + result["resultCode"]);
+            signale.info(" Result Message -->> " + result["resultMessage"]);
         }
-        return response.status(200).json({
-            result: result
-        });
     }).catch((error) => {
-        signale.error("CRM Subscription Error => " + error.response.data);
-        let statusObject = { subscribeCRM: error.message };
+        signale.error("CRM Subscription Error => " + error);
+        let statusObject = { subscribeCRM: error };
         return response.json(statusObject);
     });
     //next();
@@ -160,7 +157,7 @@ function addCustomerMwareTV(telephoneNumber, customerName) {
 }
 function checkIfCustomerExists(telephoneNumber) {
     return __awaiter(this, void 0, void 0, function* () {
-        signale.info("Get Customer MWare started...");
+        signale.info("Check if Customer exists in MWare started...");
         return new Promise((resolve) => {
             const config = {
                 method: 'get',
@@ -170,6 +167,7 @@ function checkIfCustomerExists(telephoneNumber) {
             axios(config)
                 .then(function (response) {
                 // @ts-ignore
+                signale.info("Response Data =>> " + response.status);
                 const parseResponse = JSON.parse(response.data.toString().replace(/\\/g, ""));
                 let fName = parseResponse["firstname"];
                 let lName = parseResponse["lastname"];
@@ -181,11 +179,17 @@ function checkIfCustomerExists(telephoneNumber) {
                     resolve(true);
                 });
             })
-                .catch(function (error) {
-                if (error.response.status == 404) {
+                .catch((reason) => {
+                var _a;
+                if (((_a = reason.response) === null || _a === void 0 ? void 0 : _a.status) == 404) {
+                    // Handle 404
                     signale.error("User does not exist on MWare Platform... Creating new User");
                     resolve(false);
                 }
+                else {
+                    signale.error("Some Other error...");
+                }
+                signale.error(reason.message);
             });
         });
     });
