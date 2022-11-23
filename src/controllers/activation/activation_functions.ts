@@ -18,26 +18,46 @@ export const activateOffer = function(request: Request, response: Response){
             addCustomerMwareTV(_subscriber,subscriberObject["name"]).then((result)=>{
               sendSMSToUserPhone(_subscriber,`[Pass]:\n Login: ${result["id"]}\n Pass: ${result["pass"]}\n Use this credentials to login to BlueViu App https://play.google.com`).then((smsResultStatus)=>{
                 signale.info(`SMS Response Status ${smsResultStatus}`);
-              }).catch((smsErrorMessage)=>{
-                signale.error(smsErrorMessage);
-              });
+                let statusObject = {subscribeCRM:"OK", checkExistMWare:"OK", getSubscriberDetails:"OK", addCustomerMWare:"OK", sendSMStoUser:"OK"}
+                return response.json(statusObject)
+              }).catch((error)=>{
+                signale.error("Send SMS to User Error => "+error.response.data)
+                let statusObject = {subscribeCRM:"OK", checkExistMWare:"OK", getSubscriberDetails:"OK", addCustomerMWare:"OK", sendSMStoUser:error.message}
+                return response.json(statusObject)
+              })
               signale.success("Offer Subscription Successful on MWareTV");
               signale.note(result);
-            });
-          });
+            }).catch((error)=>{
+              signale.error("Add Customer MWareTV Error => "+error.response.data)
+              let statusObject = {subscribeCRM:"OK", checkExistMWare:"OK", getSubscriberDetails:"OK", addCustomerMWare:error.message}
+              return response.json(statusObject)
+            })
+          }).catch((error)=>{
+            signale.error("CRM Get Subscriber Details Error => "+error.response.data)
+            let statusObject = {subscribeCRM:"OK", checkExistMWare:"OK", getSubscriberDetails: error.message}
+            return response.json(statusObject)
+          })
+        }else{
+          let statusObject = {subscribeCRM:"OK", checkExistMWare:"Exist", smstoUser:"Sending..."}
+          return response.json(statusObject)
         }
+      }).catch((error)=>{
+        signale.error("CRM Subscription Error => "+error.response.data)
+        let statusObject = {subscribeCRM:"OK", checkExistMWare: error.message}
+        return response.json(statusObject)
       })
     }else{
       console.log("✖ Offer Subscription went through but was not successful at CRM");
       console.log(" Result Code -->> "+ result["resultCode"]);
       console.log(" Result Message -->> "+ result["resultMessage"]);
-
     }
     return response.status(200).json({
       result:result
     });
-  }).catch((err)=>{
-    signale.error(err)
+  }).catch((error)=>{
+    signale.error("CRM Subscription Error => "+error.response.data)
+    let statusObject = {subscribeCRM:error.message}
+    return response.json(statusObject)
   })
   //next();
 }
@@ -141,16 +161,16 @@ async function checkIfCustomerExists (telephoneNumber):Promise<boolean>{
     axios(config)
       .then(function (response) {
         // @ts-ignore
-          const parseResponse = JSON.parse(response.data.toString().replace(/\\/g, ""));
-          let fName = parseResponse["firstname"];
-          let lName = parseResponse["lastname"];
-          let id = parseResponse["userid"];
-          let pass = parseResponse["password"];
-          signale.info("User already exists... Re-transmitting details to existing User");
-          sendSMSToUserPhone(id,`[Customer]: Existing User\nLogin: ${id}\n Pass: ${pass}\n Names: ${fName} ${lName}\n Use these credentials to login to BlueViu App https://play.google.com`).then((smsResultStatus)=>{
-            signale.info(`SMS Response Status ${smsResultStatus}`);
-            resolve(true);
-          });
+        const parseResponse = JSON.parse(response.data.toString().replace(/\\/g, ""));
+        let fName = parseResponse["firstname"];
+        let lName = parseResponse["lastname"];
+        let id = parseResponse["userid"];
+        let pass = parseResponse["password"];
+        signale.info("User already exists... Re-transmitting details to existing User");
+        sendSMSToUserPhone(id,`[Customer]: Existing User\nLogin: ${id}\n Pass: ${pass}\n Names: ${fName} ${lName}\n Use these credentials to login to BlueViu App https://play.google.com`).then((smsResultStatus)=>{
+          signale.info(`SMS Response Status ${smsResultStatus}`);
+          resolve(true);
+        });
       })
       .catch(function (error) {
         if(error.response.status==404){
@@ -192,9 +212,9 @@ async function  getSubscriberDetails (telephoneNumber):Promise<object> {
           // eslint-disable-next-line max-len
           signale.success("Subscriber details queried and receive successfully")
           resolve(
-          {code: responseCode,
-          message: responseMessage,
-          name: subscriberName}
+            {code: responseCode,
+              message: responseMessage,
+              name: subscriberName}
           )
         })
       }).catch((error)=>{

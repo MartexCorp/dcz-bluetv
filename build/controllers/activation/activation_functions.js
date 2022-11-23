@@ -26,14 +26,34 @@ const activateOffer = function (request, response) {
                         addCustomerMwareTV(_subscriber, subscriberObject["name"]).then((result) => {
                             (0, notif_functions_1.sendSMSToUserPhone)(_subscriber, `[Pass]:\n Login: ${result["id"]}\n Pass: ${result["pass"]}\n Use this credentials to login to BlueViu App https://play.google.com`).then((smsResultStatus) => {
                                 signale.info(`SMS Response Status ${smsResultStatus}`);
-                            }).catch((smsErrorMessage) => {
-                                signale.error(smsErrorMessage);
+                                let statusObject = { subscribeCRM: "OK", checkExistMWare: "OK", getSubscriberDetails: "OK", addCustomerMWare: "OK", sendSMStoUser: "OK" };
+                                return response.json(statusObject);
+                            }).catch((error) => {
+                                signale.error("Send SMS to User Error => " + error.response.data);
+                                let statusObject = { subscribeCRM: "OK", checkExistMWare: "OK", getSubscriberDetails: "OK", addCustomerMWare: "OK", sendSMStoUser: error.message };
+                                return response.json(statusObject);
                             });
                             signale.success("Offer Subscription Successful on MWareTV");
                             signale.note(result);
+                        }).catch((error) => {
+                            signale.error("Add Customer MWareTV Error => " + error.response.data);
+                            let statusObject = { subscribeCRM: "OK", checkExistMWare: "OK", getSubscriberDetails: "OK", addCustomerMWare: error.message };
+                            return response.json(statusObject);
                         });
+                    }).catch((error) => {
+                        signale.error("CRM Get Subscriber Details Error => " + error.response.data);
+                        let statusObject = { subscribeCRM: "OK", checkExistMWare: "OK", getSubscriberDetails: error.message };
+                        return response.json(statusObject);
                     });
                 }
+                else {
+                    let statusObject = { subscribeCRM: "OK", checkExistMWare: "Exist", smstoUser: "Sending..." };
+                    return response.json(statusObject);
+                }
+            }).catch((error) => {
+                signale.error("CRM Subscription Error => " + error.response.data);
+                let statusObject = { subscribeCRM: "OK", checkExistMWare: error.message };
+                return response.json(statusObject);
             });
         }
         else {
@@ -44,8 +64,10 @@ const activateOffer = function (request, response) {
         return response.status(200).json({
             result: result
         });
-    }).catch((err) => {
-        signale.error(err);
+    }).catch((error) => {
+        signale.error("CRM Subscription Error => " + error.response.data);
+        let statusObject = { subscribeCRM: error.message };
+        return response.json(statusObject);
     });
     //next();
 };
