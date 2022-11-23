@@ -37,7 +37,7 @@ export const activateOffer = function(request: Request, response: Response){
             return response.json(statusObject)
           })
         }else{
-           let statusObject = {subscribeCRM:"OK", checkExistMWare:"Exist", smstoUser:"Sending..."}
+           let statusObject = {subscribeCRM:"OK", checkExistMWare:"Exist", smstoUser:"Sending...", changeProduct:"Extending..."}
           return response.json(statusObject)
         }
       }).catch((error)=>{
@@ -168,6 +168,12 @@ async function checkIfCustomerExists (telephoneNumber):Promise<boolean>{
         sendSMSToUserPhone(id,`[Customer]: Existing User\nLogin: ${id}\n Pass: ${pass}\n Names: ${fName} ${lName}\n Use these credentials to login to BlueViu App https://play.google.com`).then((smsResultStatus)=>{
           signale.info(`SMS Response Status ${smsResultStatus}`);
           resolve(true);
+          changeCustomerProduct(id,pass).then((result)=>{
+            signale.info(result)
+            }
+          ).catch((reason)=>{
+            signale.error(reason.message)
+          })
         });
       })
       .catch((reason: AxiosError) => {
@@ -181,6 +187,31 @@ async function checkIfCustomerExists (telephoneNumber):Promise<boolean>{
         signale.error(reason.message)
       })
 
+  })
+}
+
+async function changeCustomerProduct (telephoneNumber,pass):Promise<object>{
+  signale.info("Change Customer Product started...")
+  return new Promise((resolve, reject) => {
+    var config = {
+      method: 'post',
+      url: `https://camtel.imsserver2.tv/api/ChangeCustomerProduct/changeCustomerProduct?productid=1&subscriptionlengthinmonths=0&subscriptionlengthindays=30&cmsService=Content&crmService=Sandbox&userid=${telephoneNumber}&password=${pass}&fromExpireDate=false&authToken=a81d6672-28f8-4e1b-88ad-b233195d12f2`,
+      headers: { }
+    };
+    axios(config)
+      .then(function (response) {
+        resolve(response.data);
+      })
+      .catch(function (reason) {
+    if (reason.response?.status == 400) {
+          // Handle 400
+          signale.error("User does not exist on MWare Platform... Check Credentials")
+        } else {
+          signale.error("Some Other error...")
+        }
+        signale.error(reason.message)
+        reject(reason);
+      });
   })
 }
 
@@ -225,5 +256,7 @@ async function  getSubscriberDetails (telephoneNumber):Promise<object> {
     })
   })
 }
+
+
 
 export default { activateOffer };
