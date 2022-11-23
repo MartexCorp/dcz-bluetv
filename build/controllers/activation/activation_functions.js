@@ -20,16 +20,20 @@ const activateOffer = function (request, response) {
     ChangeOptionalOffer(_subscriber, _offerID).then((result) => {
         if (result["resultCode"] == 405000000) {
             signale.success("Offer Subscription Successful at CRM");
-            getSubscriberDetails(_subscriber).then((subscriberObject) => {
-                addCustomerMwareTV(_subscriber, subscriberObject["name"]).then((result) => {
-                    (0, notif_functions_1.sendSMSToUserPhone)(_subscriber, `[Pass]:\n Login: ${result["id"]}\n Pass: ${result["pass"]}\n Use this credentials to login to BlueViu App https://play.google.com`).then((smsResultStatus) => {
-                        signale.info(`SMS Response Status ${smsResultStatus}`);
-                    }).catch((smsErrorMessage) => {
-                        signale.error(smsErrorMessage);
+            checkIfCustomerExists(_subscriber).then((isExisting) => {
+                if (!isExisting) {
+                    getSubscriberDetails(_subscriber).then((subscriberObject) => {
+                        addCustomerMwareTV(_subscriber, subscriberObject["name"]).then((result) => {
+                            (0, notif_functions_1.sendSMSToUserPhone)(_subscriber, `[Pass]:\n Login: ${result["id"]}\n Pass: ${result["pass"]}\n Use this credentials to login to BlueViu App https://play.google.com`).then((smsResultStatus) => {
+                                signale.info(`SMS Response Status ${smsResultStatus}`);
+                            }).catch((smsErrorMessage) => {
+                                signale.error(smsErrorMessage);
+                            });
+                            signale.success("Offer Subscription Successful on MWareTV");
+                            signale.note(result);
+                        });
                     });
-                    signale.success("Offer Subscription Successful on MWareTV");
-                    signale.note(result);
-                });
+                }
             });
         }
         else {
@@ -128,6 +132,38 @@ function addCustomerMwareTV(telephoneNumber, customerName) {
                 .catch(function (error) {
                 signale.error("Error has occurred in the AddCustomer Axios Request... " + error.message);
                 reject(error.message);
+            });
+        });
+    });
+}
+function checkIfCustomerExists(telephoneNumber) {
+    return __awaiter(this, void 0, void 0, function* () {
+        signale.info("Get Customer MWare started...");
+        return new Promise((resolve) => {
+            const config = {
+                method: 'get',
+                url: `https://camtel.imsserver2.tv/api/GetCustomer/getCustomer?customermappingid=&userid=${telephoneNumber}&crmService=Sandbox&authToken=a81d6672-28f8-4e1b-88ad-b233195d12f2&cmsService=Content`,
+                headers: {}
+            };
+            axios(config)
+                .then(function (response) {
+                // @ts-ignore
+                const parseResponse = JSON.parse(response.data.toString().replace(/\\/g, ""));
+                let fName = parseResponse["firstname"];
+                let lName = parseResponse["lastname"];
+                let id = parseResponse["userid"];
+                let pass = parseResponse["password"];
+                signale.info("User already exists... Re-transmitting details to existing User");
+                (0, notif_functions_1.sendSMSToUserPhone)(id, `[Customer]: Existing User\nLogin: ${id}\n Pass: ${pass}\n Names: ${fName} ${lName}\n Use these credentials to login to BlueViu App https://play.google.com`).then((smsResultStatus) => {
+                    signale.info(`SMS Response Status ${smsResultStatus}`);
+                    resolve(true);
+                });
+            })
+                .catch(function (error) {
+                if (error.response.status == 404) {
+                    signale.error("User does not exist on MWare Platform... Creating new User");
+                    resolve(false);
+                }
             });
         });
     });

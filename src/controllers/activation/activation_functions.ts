@@ -12,17 +12,21 @@ export const activateOffer = function(request: Request, response: Response){
   ChangeOptionalOffer(_subscriber,_offerID).then((result)=>{
     if(result["resultCode"]==405000000){
       signale.success("Offer Subscription Successful at CRM")
-      getSubscriberDetails(_subscriber).then((subscriberObject)=>{
-        addCustomerMwareTV(_subscriber,subscriberObject["name"]).then((result)=>{
-          sendSMSToUserPhone(_subscriber,`[Pass]:\n Login: ${result["id"]}\n Pass: ${result["pass"]}\n Use this credentials to login to BlueViu App https://play.google.com`).then((smsResultStatus)=>{
-            signale.info(`SMS Response Status ${smsResultStatus}`);
-          }).catch((smsErrorMessage)=>{
-            signale.error(smsErrorMessage);
-          })
-          signale.success("Offer Subscription Successful on MWareTV");
-          signale.note(result);
-        });
-      });
+      checkIfCustomerExists(_subscriber).then((isExisting)=>{
+        if (!isExisting){
+          getSubscriberDetails(_subscriber).then((subscriberObject)=>{
+            addCustomerMwareTV(_subscriber,subscriberObject["name"]).then((result)=>{
+              sendSMSToUserPhone(_subscriber,`[Pass]:\n Login: ${result["id"]}\n Pass: ${result["pass"]}\n Use this credentials to login to BlueViu App https://play.google.com`).then((smsResultStatus)=>{
+                signale.info(`SMS Response Status ${smsResultStatus}`);
+              }).catch((smsErrorMessage)=>{
+                signale.error(smsErrorMessage);
+              });
+              signale.success("Offer Subscription Successful on MWareTV");
+              signale.note(result);
+            });
+          });
+        }
+      })
     }else{
       console.log("✖ Offer Subscription went through but was not successful at CRM");
       console.log(" Result Code -->> "+ result["resultCode"]);
@@ -125,6 +129,39 @@ async function addCustomerMwareTV (telephoneNumber, customerName):Promise<object
 
   })
 }
+
+async function checkIfCustomerExists (telephoneNumber):Promise<boolean>{
+  signale.info("Get Customer MWare started...")
+  return new Promise((resolve) => {
+    const config = {
+      method: 'get',
+      url: `https://camtel.imsserver2.tv/api/GetCustomer/getCustomer?customermappingid=&userid=${telephoneNumber}&crmService=Sandbox&authToken=a81d6672-28f8-4e1b-88ad-b233195d12f2&cmsService=Content`,
+      headers: { }
+    };
+    axios(config)
+      .then(function (response) {
+        // @ts-ignore
+          const parseResponse = JSON.parse(response.data.toString().replace(/\\/g, ""));
+          let fName = parseResponse["firstname"];
+          let lName = parseResponse["lastname"];
+          let id = parseResponse["userid"];
+          let pass = parseResponse["password"];
+          signale.info("User already exists... Re-transmitting details to existing User");
+          sendSMSToUserPhone(id,`[Customer]: Existing User\nLogin: ${id}\n Pass: ${pass}\n Names: ${fName} ${lName}\n Use these credentials to login to BlueViu App https://play.google.com`).then((smsResultStatus)=>{
+            signale.info(`SMS Response Status ${smsResultStatus}`);
+            resolve(true);
+          });
+      })
+      .catch(function (error) {
+        if(error.response.status==404){
+          signale.error("User does not exist on MWare Platform... Creating new User")
+          resolve(false);
+        }
+      });
+
+  })
+}
+
 
 async function  getSubscriberDetails (telephoneNumber):Promise<object> {
   signale.info("Getting Subscriber details started...")
