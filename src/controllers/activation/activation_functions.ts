@@ -17,27 +17,27 @@ export const activateOffer = function(request: Request, response: Response){
             addCustomerMwareTV(_subscriber,subscriberObject["name"]).then((result)=>{
               sendSMSToUserPhone(_subscriber,`[Pass]:\n Login: ${result["id"]}\n Pass: ${result["pass"]}\n Use this credentials to login to BlueViu App https://play.google.com`).then((smsResultStatus)=>{
                 signale.info(`SMS Response Status ${smsResultStatus}`);
-                 let statusObject = {subscribeCRM:"OK", checkExistMWare:"OK", getSubscriberDetails:"OK", addCustomerMWare:"OK", sendSMStoUser:"OK"}
+                 let statusObject = {subscribeCRM:{ status: true, message: "OK" }, checkExistMWare:{ status: true, message: "OK" }, getSubscriberDetails:{ status: true, message: "OK" }, addCustomerMWare:{ status: true, message: "OK" }, sendSMStoUser:{ status: true, message: "OK" }}
                 return response.json(statusObject)
               }).catch((error)=>{
                 signale.error("Send SMS to User Error => "+error.response)
-                 let statusObject = {subscribeCRM:"OK", checkExistMWare:"OK", getSubscriberDetails:"OK", addCustomerMWare:"OK", sendSMStoUser:error.message}
+                 let statusObject = {subscribeCRM: { status: true, message: "OK" }, checkExistMWare:{ status: true, message: "OK" }, getSubscriberDetails:{ status: true, message: "Subscriber details gotten" }, addCustomerMWare:{ status: true, message: "Customer added on MWareTV" }, sendSMStoUser:{ status: false, message: error.message }}
                 return response.json(statusObject)
               })
               signale.success("Offer Subscription Successful on MWareTV");
               signale.note(result);
             }).catch((error)=>{
               signale.error("Add Customer MWareTV Error => "+error.response)
-               let statusObject = {subscribeCRM:"OK", checkExistMWare:"OK", getSubscriberDetails:"OK", addCustomerMWare:error.message}
+               let statusObject = {subscribeCRM:{ status: true, message: "OK" }, checkExistMWare:{ status: true, message: "OK" }, getSubscriberDetails:{ status: true, message: "OK" }, addCustomerMWare:{ status: false, message: error.message }}
               return response.json(statusObject)
             })
           }).catch((error)=>{
             signale.error("CRM Get Subscriber Details Error => "+error.response)
-            let statusObject = {subscribeCRM:"OK", checkExistMWare:"OK", getSubscriberDetails: error.message}
+            let statusObject = {subscribeCRM:{ status: true, message: "OK" }, checkExistMWare:{ status: true, message: "OK" }, getSubscriberDetails: { status: false, message: error.message }}
             return response.json(statusObject)
           })
         }else{
-           let statusObject = {subscribeCRM:"OK", checkExistMWare:"Exist", smstoUser:"Sending...", changeProduct:"Extending..."}
+           let statusObject = {subscribeCRM: { status: true, message: "Offer has been successfully activated in the CRM" } , checkExistMWare:{ status: true, message: "User exists in MWareTV Platform" }, smstoUser:{ status: true, message: "Message sending..." }, changeProduct: { status: true, message: "Adding offer extension..." }}
           return response.json(statusObject)
         }
       }).catch((error)=>{
@@ -112,7 +112,7 @@ async function addCustomerMwareTV (telephoneNumber, customerName):Promise<object
   return new Promise((resolve, reject) => {
     const config = {
       method: "post",
-      url: `https://camtel.imsserver2.tv/api/AddCustomer/addCustomer?productid=1&subscriptionlengthinmonths=0&subscriptionlengthindays=1&renewalinterval=1&cmsService=Content&crmService=Sandbox&reseller_id=0&order_id=0&authToken=a81d6672-28f8-4e1b-88ad-b233195d12f2&StartSubscriptionFromFirstLogin=true&sendMail=false&firstname=${fName}&lastname=${mlName}&street=Happy2000&zipcode=13062&city=Yaounde&state=CE&country=Cameroon&phone=+237${telephoneNumber}&mobile=0&email=${telephoneNumber}@camtel.cm&userid=${telephoneNumber}&sendSMS=false`,
+      url: `https://camtel.mytvapp.tv/api/AddCustomer/addCustomer?productid=1&subscriptionlengthinmonths=1&cmsService=Content&crmService=Camtel_CRM&reseller_id=0&order_id=0&authToken=594c6fde-8f9f-4093-93f1-53238fbc73e0&StartSubscriptionFromFirstLogin=true&sendMail=false&firstname=${fName}&lastname=${mlName}&street=Happy2000&zipcode=13062&city=Yaounde&state=CE&country=Cameroon&phone=+237${telephoneNumber}&mobile=0&email=${telephoneNumber}@camtel.cm&userid=${telephoneNumber}&sendSMS=false`,
       headers: {}
     };
 
@@ -152,7 +152,7 @@ async function checkIfCustomerExists (telephoneNumber):Promise<boolean>{
   return new Promise((resolve) => {
     const config = {
       method: 'get',
-      url: `https://camtel.imsserver2.tv/api/GetCustomer/getCustomer?customermappingid=&userid=${telephoneNumber}&crmService=Sandbox&authToken=a81d6672-28f8-4e1b-88ad-b233195d12f2&cmsService=Content`,
+      url: `https://camtel.mytvapp.tv/api/GetCustomer/getCustomer?customermappingid=&userid=${telephoneNumber}&crmService=Camtel_CRM&authToken=594c6fde-8f9f-4093-93f1-53238fbc73e0&cmsService=Content`,
       headers: { }
     };
     axios(config)
@@ -179,7 +179,7 @@ async function checkIfCustomerExists (telephoneNumber):Promise<boolean>{
       .catch((reason: AxiosError) => {
         if (reason.response?.status == 404) {
           // Handle 404
-          signale.error("User does not exist on MWare Platform... Creating new User")
+          signale.error("User does not exist on MWare Platform... Create new User")
           resolve(false);
         } else {
           signale.error("Some Other error...")
@@ -195,7 +195,7 @@ async function changeCustomerProduct (telephoneNumber,pass):Promise<object>{
   return new Promise((resolve, reject) => {
     var config = {
       method: 'post',
-      url: `https://camtel.imsserver2.tv/api/ChangeCustomerProduct/changeCustomerProduct?productid=1&subscriptionlengthinmonths=0&subscriptionlengthindays=30&cmsService=Content&crmService=Sandbox&userid=${telephoneNumber}&password=${pass}&fromExpireDate=false&authToken=a81d6672-28f8-4e1b-88ad-b233195d12f2`,
+      url: `https://camtel.mytvapp.tv/api/ChangeCustomerProduct/changeCustomerProduct?productid=1&subscriptionlengthinmonths=0&subscriptionlengthindays=30&cmsService=Content&crmService=Camtel_CRM&userid=${telephoneNumber}&password=${pass}&fromExpireDate=false&authToken=594c6fde-8f9f-4093-93f1-53238fbc73e0`,
       headers: { }
     };
     axios(config)
@@ -205,7 +205,7 @@ async function changeCustomerProduct (telephoneNumber,pass):Promise<object>{
       .catch(function (reason) {
     if (reason.response?.status == 400) {
           // Handle 400
-          signale.error("User does not exist on MWare Platform... Check Credentials")
+          signale.info("User does not exist on MWare Platform... Check Credentials")
         } else {
           signale.error("Some Other error...")
         }
