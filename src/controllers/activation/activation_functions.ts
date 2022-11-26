@@ -116,7 +116,7 @@ async function addCustomerMwareTV (telephoneNumber, customerName):Promise<object
   return new Promise((resolve, reject) => {
     const config = {
       method: "post",
-      url: `https://camtel.imsserver2.tv/api/AddCustomer/addCustomer?productid=1&subscriptionlengthinmonths=1&subscriptionlengthindays=30&renewalinterval=1&cmsService=Content&crmService=Camtel_CRM&reseller_id=0&order_id=0&authToken=594c6fde-8f9f-4093-93f1-53238fbc73e0&StartSubscriptionFromFirstLogin=true&sendMail=false&firstname=${fName}&lastname=${mlName} ${lName}&country=Cameroon&email=${telephoneNumber}@camtel.cm&userid=${telephoneNumber}&sendSMS=false`,
+      url: `https://camtel.imsserver2.tv/api/AddCustomer/addCustomer?productid=1&subscriptionlengthinmonths=1&subscriptionlengthindays=30&renewalinterval=1&cmsService=Content&crmService=Camtel_CRM&reseller_id=0&order_id=0&productmappingid=&customermappingid=&authToken=594c6fde-8f9f-4093-93f1-53238fbc73e0&StartSubscriptionFromFirstLogin=true&sendMail=false&firstname=${fName}&lastname=${mlName} ${lName}&street=&zipcode=&city=&state=&country=Cameroon&phone=+237${telephoneNumber}&mobile=+237${telephoneNumber}&email=${telephoneNumber}@camtel.cm&userid=${telephoneNumber}&sendSMS=false`,
       headers: {}
     };
 
