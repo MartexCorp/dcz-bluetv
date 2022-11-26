@@ -9,7 +9,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.getCRMSubscriberDetails = exports.activateOffer = void 0;
+exports.activateOffer = void 0;
 const notif_functions_1 = require("../notification/notif_functions");
 const xml2js = require("xml2js");
 const axios = require("axios").default;
@@ -232,15 +232,6 @@ function changeCustomerProduct(telephoneNumber, pass) {
         });
     });
 }
-const getCRMSubscriberDetails = function (request, response) {
-    return __awaiter(this, void 0, void 0, function* () {
-        const _subscriber = request.body.number;
-        const name = yield getSubscriberDetails(_subscriber).then(result => addCustomerMwareTV(_subscriber, result["name"]).then((result2) => {
-            signale.info(result2.toString());
-        }));
-    });
-};
-exports.getCRMSubscriberDetails = getCRMSubscriberDetails;
 function getSubscriberDetails(telephoneNumber) {
     return __awaiter(this, void 0, void 0, function* () {
         signale.info("Getting Subscriber details started...");
@@ -278,4 +269,4 @@ function getSubscriberDetails(telephoneNumber) {
         });
     });
 }
-exports.default = { activateOffer: exports.activateOffer, getCRMSubscriberDetails: exports.getCRMSubscriberDetails };
+exports.default = { activateOffer: exports.activateOffer };

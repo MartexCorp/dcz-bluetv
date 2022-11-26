@@ -221,12 +221,7 @@ async function changeCustomerProduct (telephoneNumber,pass):Promise<object>{
   })
 }
 
-export const getCRMSubscriberDetails = async function(request: Request, response: Response) {
-  const _subscriber = request.body.number;
-  const name = await getSubscriberDetails(_subscriber).then(result => addCustomerMwareTV(_subscriber, result["name"]).then((result2)=>{
-    signale.info(result2.toString())
-  }))
-}
+
 async function  getSubscriberDetails (telephoneNumber):Promise<object> {
   signale.info("Getting Subscriber details started...")
   return new Promise((resolve, reject) => {
@@ -270,4 +265,4 @@ async function  getSubscriberDetails (telephoneNumber):Promise<object> {
 
 
 
-export default { activateOffer, getCRMSubscriberDetails };
+export default { activateOffer };
