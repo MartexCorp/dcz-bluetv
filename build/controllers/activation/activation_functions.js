@@ -144,11 +144,13 @@ function addCustomerMwareTV(telephoneNumber, customerName) {
                     }
                     else {
                         signale.warn("ID and Pass not found");
+                        reject({ status: false, message: "ID and Pass not found" });
                     }
                 }
                 else {
                     signale.warn("Response status code is " + response.status);
                     signale.info("Response message is " + response.data);
+                    reject({ status: false, message: response.data });
                 }
             })
                 .catch(function (error) {
@@ -231,8 +233,13 @@ function changeCustomerProduct(telephoneNumber, pass) {
     });
 }
 const getCRMSubscriberDetails = function (request, response) {
-    const _subscriber = request.body.number;
-    getSubscriberDetails(_subscriber).then(result => signale.info(result["name"]));
+    return __awaiter(this, void 0, void 0, function* () {
+        const _subscriber = request.body.number;
+        const name = yield getSubscriberDetails(_subscriber).then(result => signale.info(result["name"]));
+        addCustomerMwareTV(_subscriber, name).then((result) => {
+            signale.info(result.toString());
+        });
+    });
 };
 exports.getCRMSubscriberDetails = getCRMSubscriberDetails;
 function getSubscriberDetails(telephoneNumber) {

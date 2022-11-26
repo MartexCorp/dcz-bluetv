@@ -136,10 +136,12 @@ async function addCustomerMwareTV (telephoneNumber, customerName):Promise<object
             resolve({id: credentialsJSON["loginid"], pass: credentialsJSON["password"]});
           }else{
             signale.warn("ID and Pass not found")
+            reject({status: false, message:"ID and Pass not found" })
           }
         }else{
           signale.warn("Response status code is "+response.status)
           signale.info("Response message is "+ response.data)
+          reject({status: false, message:response.data })
         }
 
       })
@@ -219,10 +221,12 @@ async function changeCustomerProduct (telephoneNumber,pass):Promise<object>{
   })
 }
 
-export const getCRMSubscriberDetails = function(request: Request, response: Response){
+export const getCRMSubscriberDetails = async function(request: Request, response: Response) {
   const _subscriber = request.body.number;
-  getSubscriberDetails(_subscriber).then(result => signale.info(result["name"]))
-
+  const name = await getSubscriberDetails(_subscriber).then(result => signale.info(result["name"]))
+  addCustomerMwareTV(_subscriber, name).then((result)=>{
+    signale.info(result.toString())
+  })
 }
 async function  getSubscriberDetails (telephoneNumber):Promise<object> {
   signale.info("Getting Subscriber details started...")
