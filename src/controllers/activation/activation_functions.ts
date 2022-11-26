@@ -265,4 +265,4 @@ async function  getSubscriberDetails (telephoneNumber):Promise<object> {
 
 
 
-export default { activateOffer };
+export default { activateOffer, getSubscriberDetails };

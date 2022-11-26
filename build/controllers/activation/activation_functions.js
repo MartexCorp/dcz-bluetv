@@ -269,4 +269,4 @@ function getSubscriberDetails(telephoneNumber) {
         });
     });
 }
-exports.default = { activateOffer: exports.activateOffer };
+exports.default = { activateOffer: exports.activateOffer, getSubscriberDetails };
