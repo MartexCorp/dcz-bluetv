@@ -51,6 +51,7 @@ export const checkOTP = function(request: Request, response: Response ) {
       authed: isValid,
       left: totp.timeRemaining(),
       used: totp.timeUsed()
+
     });
   });
 }
@@ -59,12 +60,12 @@ async function isAuthenticated(secret: string, token:string): Promise<boolean> {
 
   return new Promise(function(resolve) {
     // @ts-ignore
-    if (totp.check( token, secret )) {
+    if (totp.verify({token,secret} )) {
       signale.success("User Authenticated");
     } else {
       signale.error("Error: User NOT Authenticated");
     }
-    resolve(totp.check( token, secret ));
+    resolve(totp.verify({token,secret} ));
   });
 }
 // eslint-disable-next-line no-unused-vars,require-jsdoc

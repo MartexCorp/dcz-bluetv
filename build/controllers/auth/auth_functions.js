@@ -65,13 +65,13 @@ function isAuthenticated(secret, token) {
     return __awaiter(this, void 0, void 0, function* () {
         return new Promise(function (resolve) {
             // @ts-ignore
-            if (otplib_1.totp.check(token, secret)) {
+            if (otplib_1.totp.verify({ token, secret })) {
                 signale.success("User Authenticated");
             }
             else {
                 signale.error("Error: User NOT Authenticated");
             }
-            resolve(otplib_1.totp.check(token, secret));
+            resolve(otplib_1.totp.verify({ token, secret }));
         });
     });
 }
