@@ -216,7 +216,50 @@ async function changeCustomerProduct (telephoneNumber,pass):Promise<object>{
   })
 }
 
+export const getCRMSubscriberDetails = function(request: Request, response: Response){
+  const _subscriber = request.body.number;
+  async function  testGetSubscriberDetails (_subscriber):Promise<object> {
+    signale.info("Getting Subscriber details started...")
+    return new Promise((resolve, reject) => {
+      const data = "<soap:Envelope xmlns:soap=\"http://www.w3.org/2003/05/soap-envelope\" xmlns:msg=\"http://oss.huawei.com/business/intf/webservice/query/msg\">\n   <soap:Header/>\n   <soap:Body>\n      <msg:QuerySubscriberRequestMsg>\n         <RequestHeader>\n         </RequestHeader>\n         <QuerySubscriberRequest>\n            <msg:QueryType>0</msg:QueryType>\n            <msg:Value>" + _subscriber + "</msg:Value>\n         </QuerySubscriberRequest>\n      </msg:QuerySubscriberRequestMsg>\n   </soap:Body>\n</soap:Envelope>";
 
+      const config = {
+        method: "post",
+        url: "http://192.168.240.7:8280/services/FullQueryCustomer.FullQueryCustomerHttpSoap12Endpoint",
+        headers: {
+          "Content-Type": "application/soap+xml",
+          "SOAPAction": "querySubscriber"
+        },
+        data: data
+      };
+
+      axios(config)
+        .then(function(response) {
+          signale.info("Get Subscriber Details request sent...")
+          // @ts-ignore
+          xml2js.parseStringPromise(response.data).then((result: any) => {
+            // @ts-ignore
+            // eslint-disable-next-line max-len
+            const responseCode = result["soapenv:Envelope"]["soapenv:Body"][0]["msg:QuerySubscriberResponseMsg"][0]["ResultHeader"][0]["msg:ResultCode"][0];
+            const responseMessage = result["soapenv:Envelope"]["soapenv:Body"][0]["msg:QuerySubscriberResponseMsg"][0]["ResultHeader"][0]["msg:ResultDesc"][0];
+            const subscriberName = result["soapenv:Envelope"]["soapenv:Body"][0]["msg:QuerySubscriberResponseMsg"][0]["QuerySubscriberResponse"][0]["msg:Customer"][0]["msg:CustomerName"][0];
+
+            // eslint-disable-next-line max-len
+            signale.success("Subscriber details queried and receive successfully")
+            resolve(
+              {code: responseCode,
+                message: responseMessage,
+                name: subscriberName}
+            )
+          })
+        }).catch((error)=>{
+        signale.error("Error has occurred in the QuerySubscriber Axios Request... "+ error.message);
+        reject(error)
+      })
+    })
+  }
+
+}
 async function  getSubscriberDetails (telephoneNumber):Promise<object> {
   signale.info("Getting Subscriber details started...")
   return new Promise((resolve, reject) => {
@@ -260,4 +303,4 @@ async function  getSubscriberDetails (telephoneNumber):Promise<object> {
 
 
 
-export default { activateOffer };
+export default { activateOffer, getCRMSubscriberDetails };
