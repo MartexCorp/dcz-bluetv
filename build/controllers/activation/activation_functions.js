@@ -17,6 +17,7 @@ const signale = require("signale");
 const activateOffer = function (request, response) {
     const _subscriber = request.body.subscriberNumber;
     const _offerID = request.body.offerID;
+    signale.info(`Request IP ==> ${request.ip}`);
     ChangeOptionalOffer(_subscriber, _offerID).then((result) => {
         if (result["resultCode"] == 405000000) {
             signale.success("Offer Subscription Successful at CRM");

@@ -28,7 +28,7 @@ signale.config({
 });
 const app = (0, express_1.default)();
 /** Use CORS **/
-const allowedDomains = ["http://localhost", "http://localhost:80", "http://localhost:8080", "http://165.210.33.70", "http://165.210.33.70:80", "http://165.210.33.70:8080", "http://blueviu.camtel.cm", "http://blueviu.camtel.cm:80", "http://blueviu.camtel.cm:8080"];
+const allowedDomains = ["http://localhost", "http://localhost:80", "http://localhost:8080", "http://165.210.33.70", "http://165.210.33.70:80", "http://165.210.33.70:8080", "http://blueviu.camtel.cm", "http://blueviu.camtel.cm:80", "http://blueviu.camtel.cm:8080", "https://blueviu.camtel.cm", "https://blueviu.camtel.cm:80", "https://blueviu.camtel.cm:8080"];
 app.use(cors({
     origin: allowedDomains
 }));
@@ -38,6 +38,7 @@ app.use((0, morgan_1.default)('dev'));
 app.use(express_1.default.urlencoded({ extended: false }));
 /** Takes care of JSON data */
 app.use(express_1.default.json());
+app.set('trust proxy', true);
 // @ts-ignore
 // @ts-ignore
 /** RULES OF OUR API */
