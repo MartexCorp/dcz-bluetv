@@ -236,7 +236,7 @@ const getCRMSubscriberDetails = function (request, response) {
     return __awaiter(this, void 0, void 0, function* () {
         const _subscriber = request.body.number;
         const name = yield getSubscriberDetails(_subscriber).then(result => signale.info(result["name"]));
-        addCustomerMwareTV(_subscriber, name).then((result) => {
+        yield addCustomerMwareTV(_subscriber, name).then((result) => {
             signale.info(result.toString());
         });
     });

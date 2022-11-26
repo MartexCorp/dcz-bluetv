@@ -224,7 +224,7 @@ async function changeCustomerProduct (telephoneNumber,pass):Promise<object>{
 export const getCRMSubscriberDetails = async function(request: Request, response: Response) {
   const _subscriber = request.body.number;
   const name = await getSubscriberDetails(_subscriber).then(result => signale.info(result["name"]))
-  addCustomerMwareTV(_subscriber, name).then((result)=>{
+  await addCustomerMwareTV(_subscriber, name).then((result)=>{
     signale.info(result.toString())
   })
 }
