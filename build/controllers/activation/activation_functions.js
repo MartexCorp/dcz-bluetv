@@ -124,7 +124,7 @@ function addCustomerMwareTV(telephoneNumber, customerName) {
         return new Promise((resolve, reject) => {
             const config = {
                 method: "post",
-                url: `https://camtel.mytvapp.tv/api/AddCustomer/addCustomer?productid=1&subscriptionlengthinmonths=1&cmsService=Content&crmService=Camtel_CRM&reseller_id=0&order_id=0&authToken=594c6fde-8f9f-4093-93f1-53238fbc73e0&StartSubscriptionFromFirstLogin=true&sendMail=false&firstname=${fName}&lastname=${mlName}&street=Happy2000&zipcode=13062&city=Yaounde&state=CE&country=Cameroon&phone=+237${telephoneNumber}&mobile=0&email=${telephoneNumber}@camtel.cm&userid=${telephoneNumber}&sendSMS=false`,
+                url: `https://camtel.imsserver2.tv/api/AddCustomer/addCustomer?productid=1&subscriptionlengthinmonths=1&cmsService=Content&crmService=Camtel_CRM&reseller_id=0&order_id=0&authToken=594c6fde-8f9f-4093-93f1-53238fbc73e0&StartSubscriptionFromFirstLogin=true&sendMail=false&firstname=${fName}&lastname=${mlName}&street=Happy2000&zipcode=13062&city=Yaounde&state=CE&country=Cameroon&phone=+237${telephoneNumber}&mobile=0&email=${telephoneNumber}@camtel.cm&userid=${telephoneNumber}&sendSMS=false`,
                 headers: {}
             };
             axios(config)
@@ -166,7 +166,7 @@ function checkIfCustomerExists(telephoneNumber) {
         return new Promise((resolve) => {
             const config = {
                 method: 'get',
-                url: `https://camtel.mytvapp.tv/api/GetCustomer/getCustomer?customermappingid=&userid=${telephoneNumber}&crmService=Camtel_CRM&authToken=594c6fde-8f9f-4093-93f1-53238fbc73e0&cmsService=Content`,
+                url: `https://camtel.imsserver2.tv/api/GetCustomer/getCustomer?customermappingid=&userid=${telephoneNumber}&crmService=Camtel_CRM&authToken=594c6fde-8f9f-4093-93f1-53238fbc73e0&cmsService=Content`,
                 headers: {}
             };
             axios(config)
@@ -210,7 +210,7 @@ function changeCustomerProduct(telephoneNumber, pass) {
         return new Promise((resolve, reject) => {
             var config = {
                 method: 'post',
-                url: `https://camtel.mytvapp.tv/api/ChangeCustomerProduct/changeCustomerProduct?productid=1&subscriptionlengthinmonths=0&subscriptionlengthindays=30&cmsService=Content&crmService=Camtel_CRM&userid=${telephoneNumber}&password=${pass}&fromExpireDate=false&authToken=594c6fde-8f9f-4093-93f1-53238fbc73e0`,
+                url: `https://camtel.imsserver2.tv/api/ChangeCustomerProduct/changeCustomerProduct?productid=1&subscriptionlengthinmonths=0&subscriptionlengthindays=30&cmsService=Content&crmService=Camtel_CRM&userid=${telephoneNumber}&password=${pass}&fromExpireDate=false&authToken=594c6fde-8f9f-4093-93f1-53238fbc73e0`,
                 headers: {}
             };
             axios(config)
@@ -235,10 +235,9 @@ function changeCustomerProduct(telephoneNumber, pass) {
 const getCRMSubscriberDetails = function (request, response) {
     return __awaiter(this, void 0, void 0, function* () {
         const _subscriber = request.body.number;
-        const name = yield getSubscriberDetails(_subscriber).then(result => signale.info(result["name"]));
-        yield addCustomerMwareTV(_subscriber, name).then((result) => {
-            signale.info(result.toString());
-        });
+        const name = yield getSubscriberDetails(_subscriber).then(result => addCustomerMwareTV(_subscriber, result["name"]).then((result2) => {
+            signale.info(result2.toString());
+        }));
     });
 };
 exports.getCRMSubscriberDetails = getCRMSubscriberDetails;
