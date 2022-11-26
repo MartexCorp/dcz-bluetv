@@ -53,7 +53,7 @@ const activateOffer = function (request, response) {
                 }
             }).catch((error) => {
                 signale.error("CRM Subscription Error => " + error.response);
-                let statusObject = { subscribeCRM: "OK", checkExistMWare: error.message };
+                let statusObject = { subscribeCRM: { status: true, message: "OK" }, checkExistMWare: { status: false, message: error.message } };
                 return response.json(statusObject);
             });
         }
@@ -61,10 +61,12 @@ const activateOffer = function (request, response) {
             signale.error("Offer Subscription went through but was not successful at CRM");
             signale.info(" Result Code -->> " + result["resultCode"]);
             signale.info(" Result Message -->> " + result["resultMessage"]);
+            let statusObject = { subscribeCRM: { status: false, message: result["resultMessage"] } };
+            return response.json(statusObject);
         }
     }).catch((error) => {
         signale.error("CRM Subscription Error => " + error);
-        let statusObject = { subscribeCRM: error };
+        let statusObject = { subscribeCRM: { status: false, message: error.message } };
         return response.json(statusObject);
     });
     //next();
