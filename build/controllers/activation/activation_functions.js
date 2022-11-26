@@ -230,7 +230,7 @@ function changeCustomerProduct(telephoneNumber, pass) {
 }
 const getCRMSubscriberDetails = function (request, response) {
     const _subscriber = request.body.number;
-    getSubscriberDetails(_subscriber).then(result => signale.info(result.toString()));
+    getSubscriberDetails(_subscriber).then(result => signale.info(result["name"]));
 };
 exports.getCRMSubscriberDetails = getCRMSubscriberDetails;
 function getSubscriberDetails(telephoneNumber) {
