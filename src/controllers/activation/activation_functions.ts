@@ -250,8 +250,7 @@ async function changeCustomerProduct (telephoneNumber,pass):Promise<object>{
   })
 }
 
-
-export async function  getSubscriberDetails (telephoneNumber):Promise<object> {
+async function  getSubscriberDetails (telephoneNumber):Promise<object> {
   signale.info("Getting Subscriber details started...")
   return new Promise((resolve, reject) => {
     const data = `<soap:Envelope xmlns:soap="http://www.w3.org/2003/05/soap-envelope" xmlns:msg="http://oss.huawei.com/business/intf/webservice/query/msg">\\n   <soap:Header/>\\n   <soap:Body>\\n      <msg:QuerySubscriberRequestMsg>\\n         <RequestHeader>\\n         </RequestHeader>\\n         <QuerySubscriberRequest>\\n            <msg:QueryType>0</msg:QueryType>\\n            <msg:Value>${telephoneNumber}</msg:Value>\\n         </QuerySubscriberRequest>\\n      </msg:QuerySubscriberRequestMsg>\\n   </soap:Body>\\n</soap:Envelope>`
@@ -292,4 +291,4 @@ export async function  getSubscriberDetails (telephoneNumber):Promise<object> {
 }
 
 
-export default { activateOffer , getSubscriberDetails};
+export default { activateOffer };

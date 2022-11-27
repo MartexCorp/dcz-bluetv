@@ -1,18 +1,10 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.singularTest = void 0;
-const activation_functions_1 = require("./controllers/activation/activation_functions");
 const tcpp = require("tcp-ping");
 const signale = require("signale");
 const singularTest = function (request, response) {
     const _param = request.body.telephone;
-    (0, activation_functions_1.getSubscriberDetails)(_param)
-        .then((result) => {
-        signale.info(JSON.stringify(result));
-    })
-        .catch((reason => {
-        signale.error(reason);
-    }));
 };
 exports.singularTest = singularTest;
 function pingTest(_host) {

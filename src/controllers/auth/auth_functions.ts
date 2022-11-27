@@ -8,8 +8,6 @@ const crypto = require("crypto")
 totp.options = {digits: 6, step: 300};// step (s) 60*5
 
 
-
-
 export const generateOTP = function(request: Request, response: Response, next: NextFunction): Promise<object> {
   let telephoneNumber: string = request.body.telephone;
   return new Promise(function(resolve, reject) {

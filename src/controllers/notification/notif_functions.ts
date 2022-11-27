@@ -1,6 +1,5 @@
 import { NextFunction, Request, Response } from "express";
 import { checkOTP, generateOTP } from "../auth/auth_functions";
-
 const axios = require("axios").default;
 const signale = require("signale");
 

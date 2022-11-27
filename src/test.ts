@@ -1,5 +1,5 @@
 import { Request, Response } from "express";
-import { activateOffer, getSubscriberDetails} from "./controllers/activation/activation_functions";
+import { activateOffer} from "./controllers/activation/activation_functions";
 const tcpp = require("tcp-ping");
 const signale = require("signale");
 
@@ -8,13 +8,6 @@ const signale = require("signale");
 export const singularTest =  function(request: Request, response: Response) {
   const _param = request.body.telephone;
 
-  getSubscriberDetails(_param)
-    .then((result)=>{
-    signale.info(JSON.stringify(result))
-  })
-    .catch((reason => {
-    signale.error(reason)
-  }))
 
 }
 
