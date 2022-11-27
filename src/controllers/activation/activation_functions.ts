@@ -4,6 +4,14 @@ const xml2js = require("xml2js");
 const axios = require("axios").default;
 import { AxiosError } from "axios";
 const signale = require("signale");
+const Agent = require('agentkeepalive');
+
+const keepaliveAgent = new Agent({
+  maxSockets: 100,
+  maxFreeSockets: 10,
+  timeout: 60000, // active socket keepalive for 60 seconds
+  freeSocketTimeout: 30000, // free socket keepalive for 30 seconds
+});
 
 export const activateOffer = function(request: Request, response: Response){
   const _subscriber = request.body.subscriberNumber;
@@ -14,54 +22,68 @@ export const activateOffer = function(request: Request, response: Response){
       .then((result)=>{
         if(result["resultCode"]==405000000){
           signale.success("Offer Subscription Successful at CRM")
-          checkIfCustomerExists(_subscriber)
-            .then(async (isExisting)=>{
-              if (!isExisting){
-                await getSubscriberDetails(_subscriber)
-                  .then(async (subscriberObject)=>{
-                    await addCustomerMwareTV(_subscriber,subscriberObject["name"])
-                      .then(async (result)=>{
-                        await sendSMSToUserPhone(_subscriber,`[Pass]:\n Login: ${result["id"]}\n Pass: ${result["pass"]}\n Use this credentials to login to BlueViu App https://play.google.com`)
-                          .then((smsResultStatus)=>{
-                            signale.info(`SMS Response Status ${smsResultStatus}`);
-                            let statusObject = {subscribeCRM:{ status: true, message: "OK" }, checkExistMWare:{ status: true, message: "OK" }, getSubscriberDetails:{ status: true, message: "OK" }, addCustomerMWare:{ status: true, message: "OK" }, sendSMStoUser:{ status: true, message: "OK" }}
-                            resolve(statusObject)
-                            return response.json(statusObject)
-                          }).catch((error)=>{
-                          signale.error("Send SMS to User Error => "+error.response)
-                          let statusObject = {subscribeCRM: { status: true, message: "OK" }, checkExistMWare:{ status: true, message: "OK" }, getSubscriberDetails:{ status: true, message: "Subscriber details gotten" }, addCustomerMWare:{ status: true, message: "Customer added on MWareTV" }, sendSMStoUser:{ status: false, message: error.message }}
-                          reject(statusObject)
+          getSubscriberDetails(_subscriber).then((subsObj)=>{
+            checkIfCustomerExists(_subscriber)
+              .then((isExisting)=> {
+                if (!isExisting) {
+                  addCustomerMwareTV(_subscriber, subsObj["name"])
+                    .then((result) => {
+                      sendSMSToUserPhone(_subscriber, `[Pass]:\n Login: ${result["id"]}\n Pass: ${result["pass"]}\n Use this credentials to login to BlueViu App https://play.google.com`)
+                        .then((smsResultStatus) => {
+                          signale.info(`SMS Response Status ${smsResultStatus}`);
+                          let statusObject = {
+                            subscribeCRM: { status: true, message: "OK" },
+                            checkExistMWare: { status: true, message: "OK" },
+                            getSubscriberDetails: { status: true, message: "OK" },
+                            addCustomerMWare: { status: true, message: "OK" },
+                            sendSMStoUser: { status: true, message: "OK" }
+                          }
+                          resolve(statusObject)
                           return response.json(statusObject)
-                        })
-                      }).catch((error)=>{
-                      signale.error("Add Customer MWareTV Error => "+error.response)
-                      let statusObject = {subscribeCRM:{ status: true, message: "OK" }, checkExistMWare:{ status: true, message: "OK" }, getSubscriberDetails:{ status: true, message: "OK" }, addCustomerMWare:{ status: false, message: error.message }}
-                      reject(statusObject)
-                      return response.json(statusObject)
-                    })
-                  }).catch((error)=>{
-                  signale.error("CRM Get Subscriber Details Error => "+error.response)
-                  let statusObject = {subscribeCRM:{ status: true, message: "OK" }, checkExistMWare:{ status: true, message: "OK" }, getSubscriberDetails: { status: false, message: error.message }}
-                  reject(statusObject)
+                        }).catch((error) => {
+                        signale.error("Send SMS to User Error => " + error.response)
+                        let statusObject = {
+                          subscribeCRM: { status: true, message: "OK" },
+                          checkExistMWare: { status: true, message: "OK" },
+                          getSubscriberDetails: { status: true, message: "Subscriber details gotten" },
+                          addCustomerMWare: { status: true, message: "Customer added on MWareTV" },
+                          sendSMStoUser: { status: false, message: error.message }
+                        }
+                        reject(statusObject)
+                        return response.json(statusObject)
+                      })
+                    }).catch((error) => {
+                    signale.error("Add Customer MWareTV Error => " + error.response)
+                    let statusObject = {
+                      subscribeCRM: { status: true, message: "OK" },
+                      checkExistMWare: { status: true, message: "OK" },
+                      getSubscriberDetails: { status: true, message: "OK" },
+                      addCustomerMWare: { status: false, message: error.message }
+                    }
+                    reject(statusObject)
+                    return response.json(statusObject)
+                  })
+                }else{
+                  let statusObject = {subscribeCRM: { status: true, message: "Offer has been successfully activated in the CRM" } , checkExistMWare:{ status: true, message: "User exists in MWareTV Platform" }, smstoUser:{ status: true, message: "Message sending..." }, changeProduct: { status: true, message: "Adding offer extension..." }}
+                  resolve(statusObject)
                   return response.json(statusObject)
-                })
-              }else{
-                let statusObject = {subscribeCRM: { status: true, message: "Offer has been successfully activated in the CRM" } , checkExistMWare:{ status: true, message: "User exists in MWareTV Platform" }, smstoUser:{ status: true, message: "Message sending..." }, changeProduct: { status: true, message: "Adding offer extension..." }}
-                resolve(statusObject)
-                return response.json(statusObject)
-              }
-            }).catch((error)=>{
-            signale.error("CRM Subscription Error => "+error.response)
-            let statusObject = {subscribeCRM:{ status: true, message: "OK" }, checkExistMWare: { status: false, message: error.message }}
+                }
+              }).catch((error)=>{
+              signale.error("MWareTV Creation Error => "+error.response)
+              let statusObject = {subscribeCRM:{ status: true, message: "OK" }, checkExistMWare:{ status: true, message: "OK" }, getSubscriberDetails: { status: false, message: error.message }}
+              reject(statusObject)
+              return response.json(statusObject)
+            })
+
+          }).catch((error)=>{
+            signale.error("CRM Get Subscriber Details Error =>"+error.response)
+            let statusObject = {subscribeCRM:{ status: true, message: "OK" }, checkExistMWare:{ status: false, message: "User not created in MWareTV Platform" }}
             reject(statusObject)
             return response.json(statusObject)
           })
         }else{
-          signale.error("Offer Subscription went through but was not successful at CRM");
-          signale.info(" Result Code -->> "+ result["resultCode"]);
-          signale.info(" Result Message -->> "+ result["resultMessage"]);
-          let statusObject = {subscribeCRM:{ status: false, message: result["resultMessage"]}}
-          reject(statusObject)
+          let statusObject = {subscribeCRM: { status: true, message: "Offer has been successfully activated in the CRM" } , checkExistMWare:{ status: false, message: "User not created on MWareTV Platform" }, smstoUser:{ status: true, message: "Message sending..." }, changeProduct: { status: true, message: "Adding offer extension..." }}
+          resolve(statusObject)
           return response.json(statusObject)
         }
       }).catch((error)=>{
@@ -71,9 +93,7 @@ export const activateOffer = function(request: Request, response: Response){
       return response.json(statusObject)
     })
   }))
-  //next();
 }
-
 async function ChangeOptionalOffer (subscriber:string, offerID:string): Promise<object> {
   signale.info("CRM Change Optional Offer started...")
   return new Promise(function(resolve, reject) {
@@ -270,7 +290,6 @@ export async function  getSubscriberDetails (telephoneNumber):Promise<object> {
     })
   })
 }
-
 
 
 export default { activateOffer , getSubscriberDetails};
