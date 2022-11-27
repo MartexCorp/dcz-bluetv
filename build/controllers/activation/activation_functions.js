@@ -24,13 +24,13 @@ const activateOffer = function (request, response) {
             if (result["resultCode"] == 405000000) {
                 signale.success("Offer Subscription Successful at CRM");
                 checkIfCustomerExists(_subscriber)
-                    .then((isExisting) => {
+                    .then((isExisting) => __awaiter(this, void 0, void 0, function* () {
                     if (!isExisting) {
-                        getSubscriberDetails(_subscriber)
-                            .then((subscriberObject) => {
-                            addCustomerMwareTV(_subscriber, subscriberObject["name"])
-                                .then((result) => {
-                                (0, notif_functions_1.sendSMSToUserPhone)(_subscriber, `[Pass]:\n Login: ${result["id"]}\n Pass: ${result["pass"]}\n Use this credentials to login to BlueViu App https://play.google.com`)
+                        yield getSubscriberDetails(_subscriber)
+                            .then((subscriberObject) => __awaiter(this, void 0, void 0, function* () {
+                            yield addCustomerMwareTV(_subscriber, subscriberObject["name"])
+                                .then((result) => __awaiter(this, void 0, void 0, function* () {
+                                yield (0, notif_functions_1.sendSMSToUserPhone)(_subscriber, `[Pass]:\n Login: ${result["id"]}\n Pass: ${result["pass"]}\n Use this credentials to login to BlueViu App https://play.google.com`)
                                     .then((smsResultStatus) => {
                                     signale.info(`SMS Response Status ${smsResultStatus}`);
                                     let statusObject = { subscribeCRM: { status: true, message: "OK" }, checkExistMWare: { status: true, message: "OK" }, getSubscriberDetails: { status: true, message: "OK" }, addCustomerMWare: { status: true, message: "OK" }, sendSMStoUser: { status: true, message: "OK" } };
@@ -42,13 +42,13 @@ const activateOffer = function (request, response) {
                                     reject(statusObject);
                                     return response.json(statusObject);
                                 });
-                            }).catch((error) => {
+                            })).catch((error) => {
                                 signale.error("Add Customer MWareTV Error => " + error.response);
                                 let statusObject = { subscribeCRM: { status: true, message: "OK" }, checkExistMWare: { status: true, message: "OK" }, getSubscriberDetails: { status: true, message: "OK" }, addCustomerMWare: { status: false, message: error.message } };
                                 reject(statusObject);
                                 return response.json(statusObject);
                             });
-                        }).catch((error) => {
+                        })).catch((error) => {
                             signale.error("CRM Get Subscriber Details Error => " + error.response);
                             let statusObject = { subscribeCRM: { status: true, message: "OK" }, checkExistMWare: { status: true, message: "OK" }, getSubscriberDetails: { status: false, message: error.message } };
                             reject(statusObject);
@@ -60,7 +60,7 @@ const activateOffer = function (request, response) {
                         resolve(statusObject);
                         return response.json(statusObject);
                     }
-                }).catch((error) => {
+                })).catch((error) => {
                     signale.error("CRM Subscription Error => " + error.response);
                     let statusObject = { subscribeCRM: { status: true, message: "OK" }, checkExistMWare: { status: false, message: error.message } };
                     reject(statusObject);
@@ -149,7 +149,6 @@ function addCustomerMwareTV(telephoneNumber, customerName) {
                     let id = credentialsJSON["loginid"];
                     let pass = credentialsJSON["password"];
                     if (id != null && pass != null) {
-                        signale.success("Successfully retrieved Login and Pass from MWareTV");
                         signale.note("MWareTv Id: " + id);
                         signale.note("MWareTV Pass: " + pass);
                         signale.note("MWareTV Customer Name " + customerName);

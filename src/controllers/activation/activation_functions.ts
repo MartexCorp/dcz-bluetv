@@ -15,13 +15,13 @@ export const activateOffer = function(request: Request, response: Response){
         if(result["resultCode"]==405000000){
           signale.success("Offer Subscription Successful at CRM")
           checkIfCustomerExists(_subscriber)
-            .then((isExisting)=>{
+            .then(async (isExisting)=>{
               if (!isExisting){
-                getSubscriberDetails(_subscriber)
-                  .then((subscriberObject)=>{
-                    addCustomerMwareTV(_subscriber,subscriberObject["name"])
-                      .then((result)=>{
-                        sendSMSToUserPhone(_subscriber,`[Pass]:\n Login: ${result["id"]}\n Pass: ${result["pass"]}\n Use this credentials to login to BlueViu App https://play.google.com`)
+                await getSubscriberDetails(_subscriber)
+                  .then(async (subscriberObject)=>{
+                    await addCustomerMwareTV(_subscriber,subscriberObject["name"])
+                      .then(async (result)=>{
+                        await sendSMSToUserPhone(_subscriber,`[Pass]:\n Login: ${result["id"]}\n Pass: ${result["pass"]}\n Use this credentials to login to BlueViu App https://play.google.com`)
                           .then((smsResultStatus)=>{
                             signale.info(`SMS Response Status ${smsResultStatus}`);
                             let statusObject = {subscribeCRM:{ status: true, message: "OK" }, checkExistMWare:{ status: true, message: "OK" }, getSubscriberDetails:{ status: true, message: "OK" }, addCustomerMWare:{ status: true, message: "OK" }, sendSMStoUser:{ status: true, message: "OK" }}
@@ -139,7 +139,6 @@ async function addCustomerMwareTV (telephoneNumber, customerName):Promise<object
           let id = credentialsJSON["loginid"];
           let pass = credentialsJSON["password"];
           if (id!=null && pass!=null){
-            signale.success("Successfully retrieved Login and Pass from MWareTV");
             signale.note("MWareTv Id: "+ id);
             signale.note("MWareTV Pass: "+ pass)
             signale.note("MWareTV Customer Name "+ customerName)
