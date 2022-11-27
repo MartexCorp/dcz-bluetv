@@ -21,9 +21,9 @@ const activateOffer = function (request, response) {
     ChangeOptionalOffer(_subscriber, _offerID).then((result) => {
         if (result["resultCode"] == 405000000) {
             signale.success("Offer Subscription Successful at CRM");
-            checkIfCustomerExists(_subscriber).then((isExisting) => {
+            checkIfCustomerExists(_subscriber).then((isExisting) => __awaiter(this, void 0, void 0, function* () {
                 if (!isExisting) {
-                    getSubscriberDetails(_subscriber).then((subscriberObject) => {
+                    yield getSubscriberDetails(_subscriber).then((subscriberObject) => {
                         addCustomerMwareTV(_subscriber, subscriberObject["name"]).then((result) => {
                             (0, notif_functions_1.sendSMSToUserPhone)(_subscriber, `[Pass]:\n Login: ${result["id"]}\n Pass: ${result["pass"]}\n Use this credentials to login to BlueViu App https://play.google.com`).then((smsResultStatus) => {
                                 signale.info(`SMS Response Status ${smsResultStatus}`);
@@ -51,7 +51,7 @@ const activateOffer = function (request, response) {
                     let statusObject = { subscribeCRM: { status: true, message: "Offer has been successfully activated in the CRM" }, checkExistMWare: { status: true, message: "User exists in MWareTV Platform" }, smstoUser: { status: true, message: "Message sending..." }, changeProduct: { status: true, message: "Adding offer extension..." } };
                     return response.json(statusObject);
                 }
-            }).catch((error) => {
+            })).catch((error) => {
                 signale.error("CRM Subscription Error => " + error.response);
                 let statusObject = { subscribeCRM: { status: true, message: "OK" }, checkExistMWare: { status: false, message: error.message } };
                 return response.json(statusObject);

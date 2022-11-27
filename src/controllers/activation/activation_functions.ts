@@ -12,9 +12,9 @@ export const activateOffer = function(request: Request, response: Response){
   ChangeOptionalOffer(_subscriber,_offerID).then((result)=>{
     if(result["resultCode"]==405000000){
       signale.success("Offer Subscription Successful at CRM")
-      checkIfCustomerExists(_subscriber).then((isExisting)=>{
+      checkIfCustomerExists(_subscriber).then(async (isExisting)=>{
         if (!isExisting){
-          getSubscriberDetails(_subscriber).then((subscriberObject)=>{
+          await getSubscriberDetails(_subscriber).then((subscriberObject)=>{
             addCustomerMwareTV(_subscriber,subscriberObject["name"]).then((result)=>{
               sendSMSToUserPhone(_subscriber,`[Pass]:\n Login: ${result["id"]}\n Pass: ${result["pass"]}\n Use this credentials to login to BlueViu App https://play.google.com`).then((smsResultStatus)=>{
                 signale.info(`SMS Response Status ${smsResultStatus}`);
@@ -236,7 +236,6 @@ export async function  getSubscriberDetails (telephoneNumber):Promise<object> {
       },
       data : data
     };
-
     axios(config)
       .then(function(response) {
         signale.info("Get Subscriber Details request sent...")
