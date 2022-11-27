@@ -8,7 +8,9 @@ const singularTest = function (request, response) {
     const _param = request.body.telephone;
     (0, activation_functions_1.getSubscriberDetails)(_param).then((result) => {
         signale.info(JSON.stringify(result));
-    });
+    }).catch((reason => {
+        signale.error(reason);
+    }));
 };
 exports.singularTest = singularTest;
 function pingTest(_host) {

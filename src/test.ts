@@ -10,7 +10,9 @@ export const singularTest =  function(request: Request, response: Response) {
 
   getSubscriberDetails(_param).then((result)=>{
     signale.info(JSON.stringify(result))
-  })
+  }).catch((reason => {
+    signale.error(reason)
+  }))
 
 }
 
