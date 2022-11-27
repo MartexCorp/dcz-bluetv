@@ -225,16 +225,16 @@ async function changeCustomerProduct (telephoneNumber,pass):Promise<object>{
 async function  getSubscriberDetails (telephoneNumber):Promise<object> {
   signale.info("Getting Subscriber details started...")
   return new Promise((resolve, reject) => {
-    const data = "<soap:Envelope xmlns:soap=\"http://www.w3.org/2003/05/soap-envelope\" xmlns:msg=\"http://oss.huawei.com/business/intf/webservice/query/msg\">\n   <soap:Header/>\n   <soap:Body>\n      <msg:QuerySubscriberRequestMsg>\n         <RequestHeader>\n         </RequestHeader>\n         <QuerySubscriberRequest>\n            <msg:QueryType>0</msg:QueryType>\n            <msg:Value>" + telephoneNumber + "</msg:Value>\n         </QuerySubscriberRequest>\n      </msg:QuerySubscriberRequestMsg>\n   </soap:Body>\n</soap:Envelope>";
-
+    const data = `<soap:Envelope xmlns:soap="http://www.w3.org/2003/05/soap-envelope" xmlns:msg="http://oss.huawei.com/business/intf/webservice/query/msg">\\n   <soap:Header/>\\n   <soap:Body>\\n      <msg:QuerySubscriberRequestMsg>\\n         <RequestHeader>\\n         </RequestHeader>\\n         <QuerySubscriberRequest>\\n            <msg:QueryType>0</msg:QueryType>\\n            <msg:Value>${telephoneNumber}</msg:Value>\\n         </QuerySubscriberRequest>\\n      </msg:QuerySubscriberRequestMsg>\\n   </soap:Body>\\n</soap:Envelope>`
     const config = {
-      method: "post",
-      url: "http://192.168.240.7:8280/services/FullQueryCustomer.FullQueryCustomerHttpSoap12Endpoint",
+      method: 'post',
+      url: 'http://192.168.240.7:8280/services/FullQueryCustomer.FullQueryCustomerHttpSoap12Endpoint',
       headers: {
-        "Content-Type": "application/soap+xml",
-        "SOAPAction": "querySubscriber"
+        'Content-Type': 'application/soap+xml',
+        'SOAPAction': 'querySubscriber',
+        'Cookie': 'JSESSIONID=0000mPHYJqEKagyWEkiPN0LUgpR:18ot01v10'
       },
-      data: data
+      data : data
     };
 
     axios(config)
