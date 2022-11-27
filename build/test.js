@@ -6,9 +6,11 @@ const tcpp = require("tcp-ping");
 const signale = require("signale");
 const singularTest = function (request, response) {
     const _param = request.body.telephone;
-    (0, activation_functions_1.getSubscriberDetails)(_param).then((result) => {
+    (0, activation_functions_1.getSubscriberDetails)(_param)
+        .then((result) => {
         signale.info(JSON.stringify(result));
-    }).catch((reason => {
+    })
+        .catch((reason => {
         signale.error(reason);
     }));
 };

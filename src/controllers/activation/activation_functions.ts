@@ -89,7 +89,6 @@ async function ChangeOptionalOffer (subscriber:string, offerID:string): Promise<
       },
       data: data,
     };
-
     axios(config)
       .then(function(response) {
         signale.info("Optional Offer Axios request sent...")
