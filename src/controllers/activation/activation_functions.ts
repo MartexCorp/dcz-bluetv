@@ -240,6 +240,7 @@ export async function  getSubscriberDetails (telephoneNumber):Promise<object> {
       .then(function(response) {
         signale.info("Get Subscriber Details request sent...")
         // @ts-ignore
+        signale.info(JSON.stringify(response.data))
         xml2js.parseStringPromise(response.data).then((result: any) => {
           // @ts-ignore
           // eslint-disable-next-line max-len
