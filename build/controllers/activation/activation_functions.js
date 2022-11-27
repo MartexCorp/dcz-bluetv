@@ -9,7 +9,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.activateOffer = void 0;
+exports.getSubscriberDetails = exports.activateOffer = void 0;
 const notif_functions_1 = require("../notification/notif_functions");
 const xml2js = require("xml2js");
 const axios = require("axios").default;
@@ -270,4 +270,5 @@ function getSubscriberDetails(telephoneNumber) {
         });
     });
 }
-exports.default = { activateOffer: exports.activateOffer };
+exports.getSubscriberDetails = getSubscriberDetails;
+exports.default = { activateOffer: exports.activateOffer, getSubscriberDetails };

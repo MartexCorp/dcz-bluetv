@@ -1,11 +1,21 @@
 import { Request, Response } from "express";
-import { activateOffer } from "./controllers/activation/activation_functions";
+import { activateOffer, getSubscriberDetails} from "./controllers/activation/activation_functions";
 const tcpp = require("tcp-ping");
+const signale = require("signale");
+
 
 
 export const singularTest =  function(request: Request, response: Response) {
+  const _param = request.body.telephone;
+
+  getSubscriberDetails(_param).then((result)=>{
+    signale.info(JSON.stringify(result))
+  })
+
+}
+
+function pingTest(_host){
   let result1:string, result2:string;
-  const _host = request.body.ip;
   // eslint-disable-next-line no-unused-vars
   tcpp.probe(_host, 8280, function(err: any, available: any) {
     const message1 = "Host "+ _host +" is Availabale: "+available+"\n";
@@ -20,10 +30,7 @@ export const singularTest =  function(request: Request, response: Response) {
     console.log(message2);
     result2 = message2;
 
-    return response.json(
-      {fOne: result1,
-             fTwo: result2})
-})
+  })
 }
 
 export default { singularTest };
