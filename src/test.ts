@@ -8,9 +8,11 @@ const signale = require("signale");
 export const singularTest =  function(request: Request, response: Response) {
   const _param = request.body.telephone;
 
-  getSubscriberDetails(_param).then((result)=>{
+  getSubscriberDetails(_param)
+    .then((result)=>{
     signale.info(JSON.stringify(result))
-  }).catch((reason => {
+  })
+    .catch((reason => {
     signale.error(reason)
   }))
 
