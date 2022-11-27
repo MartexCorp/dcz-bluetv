@@ -4,19 +4,25 @@ const tcpp = require("tcp-ping");
 
 
 export const singularTest =  function(request: Request, response: Response) {
-  const host = "192.168.240.7";
+  let result1:string, result2:string;
+  const _host = request.body.ip;
   // eslint-disable-next-line no-unused-vars
-  tcpp.probe(host, 8280, function(err: any, available: any) {
-    const message1 = "Host "+ host +" is Availabale: "+available+"\n";
+  tcpp.probe(_host, 8280, function(err: any, available: any) {
+    const message1 = "Host "+ _host +" is Availabale: "+available+"\n";
     console.log(message1);
+    result1 = message1;
   });
 
-  tcpp.ping({address: host, port: 8280}, function(err: any, data: any) {
+  tcpp.ping({address: _host, port: 8280}, function(err: any, data: any) {
     console.log(data);
     // eslint-disable-next-line max-len
     const message2 = "Pinging "+ data.address +" Port: "+data.port+ " with "+data.attempts+" packets \n"+ JSON.stringify(data.results);
     console.log(message2);
+    result2 = message2;
 
+    return response.json(
+      {fOne: result1,
+             fTwo: result2})
 })
 }
 
