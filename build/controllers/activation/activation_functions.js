@@ -270,4 +270,4 @@ function getSubscriberDetails(telephoneNumber) {
         });
     });
 }
-exports.default = { activateOffer: exports.activateOffer, getSubscriberDetails };
+exports.default = { activateOffer: exports.activateOffer };
