@@ -20,7 +20,7 @@ export const activateOffer = function(request: Request, response: Response){
   return new Promise(((resolve, reject) => {
     ChangeOptionalOffer(_subscriber,_offerID)
       .then((result)=>{
-        if(result["resultCode"]==405000000){
+        if(result["resultCode"]==405000000 || result["resultCode"]==405000605){
           signale.success("Offer Subscription Successful at CRM")
           getSubscriberDetails(_subscriber).then((subsObj)=>{
             checkIfCustomerExists(_subscriber)
@@ -92,6 +92,7 @@ export const activateOffer = function(request: Request, response: Response){
       reject(statusObject)
       return response.json(statusObject)
     })
+    return response.end()
   }))
 }
 async function ChangeOptionalOffer (subscriber:string, offerID:string): Promise<object> {
