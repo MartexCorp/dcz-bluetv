@@ -20,7 +20,7 @@ export const activateOffer = function(request: Request, response: Response){
   return new Promise(((resolve, reject) => {
     ChangeOptionalOffer(_subscriber,_offerID)
       .then((result)=>{
-        if(result["resultCode"]==405000000 || result["resultCode"]==405000605){
+        if(result["resultCode"]==405000000){
           signale.success("Offer Subscription Successful at CRM")
           getSubscriberDetails(_subscriber).then((subsObj)=>{
             checkIfCustomerExists(_subscriber)
@@ -92,7 +92,6 @@ export const activateOffer = function(request: Request, response: Response){
       reject(statusObject)
       return response.json(statusObject)
     })
-    return response.end()
   }))
 }
 async function ChangeOptionalOffer (subscriber:string, offerID:string): Promise<object> {
@@ -229,10 +228,10 @@ async function checkIfCustomerExists (telephoneNumber):Promise<boolean>{
 async function changeCustomerProduct (telephoneNumber,pass):Promise<object>{
   signale.info("Change Customer Product started...")
   return new Promise((resolve, reject) => {
-    var config = {
-      method: 'post',
+    const config = {
+      method: "post",
       url: `https://camtel.imsserver2.tv/api/ChangeCustomerProduct/changeCustomerProduct?productid=1&subscriptionlengthinmonths=0&subscriptionlengthindays=30&cmsService=Content&crmService=Camtel_CRM&userid=${telephoneNumber}&password=${pass}&fromExpireDate=false&authToken=594c6fde-8f9f-4093-93f1-53238fbc73e0`,
-      headers: { }
+      headers: {}
     };
     axios(config)
       .then(function (response) {

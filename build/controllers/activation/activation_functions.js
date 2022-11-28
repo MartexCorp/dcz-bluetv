@@ -28,7 +28,7 @@ const activateOffer = function (request, response) {
     return new Promise(((resolve, reject) => {
         ChangeOptionalOffer(_subscriber, _offerID)
             .then((result) => {
-            if (result["resultCode"] == 405000000 || result["resultCode"] == 405000605) {
+            if (result["resultCode"] == 405000000) {
                 signale.success("Offer Subscription Successful at CRM");
                 getSubscriberDetails(_subscriber).then((subsObj) => {
                     checkIfCustomerExists(_subscriber)
@@ -101,7 +101,6 @@ const activateOffer = function (request, response) {
             reject(statusObject);
             return response.json(statusObject);
         });
-        return response.end();
     }));
 };
 exports.activateOffer = activateOffer;
@@ -240,8 +239,8 @@ function changeCustomerProduct(telephoneNumber, pass) {
     return __awaiter(this, void 0, void 0, function* () {
         signale.info("Change Customer Product started...");
         return new Promise((resolve, reject) => {
-            var config = {
-                method: 'post',
+            const config = {
+                method: "post",
                 url: `https://camtel.imsserver2.tv/api/ChangeCustomerProduct/changeCustomerProduct?productid=1&subscriptionlengthinmonths=0&subscriptionlengthindays=30&cmsService=Content&crmService=Camtel_CRM&userid=${telephoneNumber}&password=${pass}&fromExpireDate=false&authToken=594c6fde-8f9f-4093-93f1-53238fbc73e0`,
                 headers: {}
             };
