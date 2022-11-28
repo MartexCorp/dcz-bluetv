@@ -91,7 +91,7 @@ const activateOffer = function (request, response) {
                 });
             }
             else {
-                let statusObject = { subscribeCRM: { status: true, message: "Offer has been successfully activated in the CRM" }, checkExistMWare: { status: false, message: "User not created on MWareTV Platform" }, smstoUser: { status: true, message: "Message sending..." }, changeProduct: { status: true, message: "Adding offer extension..." } };
+                let statusObject = { subscribeCRM: { status: false, message: "Offer has not been successfully activated in the CRM" } };
                 resolve(statusObject);
                 return response.json(statusObject);
             }
@@ -133,7 +133,7 @@ function ChangeOptionalOffer(subscriber, offerID) {
                     const responseMessage = result["soapenv:Envelope"]["soapenv:Body"][0]["msg:ChangeOptionalOfferResultMsg"][0]["ResultHeader"][0]["msg:ResultDesc"][0];
                     // eslint-disable-next-line max-len
                     signale.note(`CRM OfferSubscribe Result Code: ${responseCode}`);
-                    signale.note(`CRM OfferSubscribe Result Message: ${{ responseMessage }}`);
+                    signale.note(`CRM OfferSubscribe Result Message: ${responseMessage}`);
                     resolve({ resultCode: responseCode,
                         resultMessage: responseMessage });
                 }).catch(function (error) {

@@ -82,7 +82,7 @@ export const activateOffer = function(request: Request, response: Response){
             return response.json(statusObject)
           })
         }else{
-          let statusObject = {subscribeCRM: { status: true, message: "Offer has been successfully activated in the CRM" } , checkExistMWare:{ status: false, message: "User not created on MWareTV Platform" }, smstoUser:{ status: true, message: "Message sending..." }, changeProduct: { status: true, message: "Adding offer extension..." }}
+          let statusObject = {subscribeCRM: { status: false, message: "Offer has not been successfully activated in the CRM" }}
           resolve(statusObject)
           return response.json(statusObject)
         }
@@ -124,7 +124,7 @@ async function ChangeOptionalOffer (subscriber:string, offerID:string): Promise<
           // eslint-disable-next-line max-len
 
           signale.note(`CRM OfferSubscribe Result Code: ${responseCode}`);
-          signale.note(`CRM OfferSubscribe Result Message: ${{ responseMessage }}`)
+          signale.note(`CRM OfferSubscribe Result Message: ${responseMessage}`)
           resolve({resultCode: responseCode,
             resultMessage: responseMessage});
         }).catch(function(error: any) {
