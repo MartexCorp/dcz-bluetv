@@ -73,7 +73,7 @@ const activateOffer = function (request, response) {
                             });
                         }
                         else {
-                            let statusObject = { subscribeCRM: { status: true, message: "Offer has been successfully activated in the CRM" }, checkExistMWare: { status: true, message: "User exists in MWareTV Platform" }, smstoUser: { status: true, message: "Message sending..." }, changeProduct: { status: true, message: "Adding offer extension..." } };
+                            let statusObject = { subscribeCRM: { status: true, message: "Offer has been successfully activated in the CRM" }, checkExistMWare: { status: true, message: "User exists in MWareTV Platform" }, sendSMStoUser: { status: true, message: "Message sending..." }, changeProduct: { status: true, message: "Adding offer extension..." } };
                             resolve(statusObject);
                             return response.json(statusObject);
                         }
