@@ -30,13 +30,13 @@ const activateOffer = function (request, response) {
             .then((result) => {
             if (result["resultCode"] == 405000000) {
                 signale.success("Offer Subscription Successful at CRM");
-                getSubscriberDetails(_subscriber).then((subsObj) => {
+                createSubscriberID(_subscriber).then((subID) => {
                     checkIfCustomerExists(_subscriber)
                         .then((isExisting) => {
                         if (!isExisting) {
-                            addCustomerMwareTV(_subscriber, subsObj["name"])
+                            addCustomerMwareTV(_subscriber, subID)
                                 .then((result) => {
-                                (0, notif_functions_1.sendSMSToUserPhone)(_subscriber, `[Pass]:\n Login: ${result["id"]}\n Pass: ${result["pass"]}\n Use this credentials to login to BlueViu App https://play.google.com`)
+                                (0, notif_functions_1.sendSMSToUserPhone)(_subscriber, `[Pass]:\n Login: ${result["id"]}\n Pass: ${result["pass"]}\n Expiry: ${result["expiry"]}\n Use this credentials to login to BlueViu App https://play.google.com`)
                                     .then((smsResultStatus) => {
                                     signale.info(`SMS Response Status ${smsResultStatus}`);
                                     let statusObject = {
@@ -167,11 +167,14 @@ function addCustomerMwareTV(telephoneNumber, customerName) {
                     const credentialsJSON = JSON.parse(response.data.toString().replace(/\\/g, ""));
                     let id = credentialsJSON["loginid"];
                     let pass = credentialsJSON["password"];
+                    let expirySplit = credentialsJSON["subscriptionenddate"].split("T");
+                    let expiryDate = expirySplit[0];
+                    let expiryTime = credentialsJSON[1];
                     if (id != null && pass != null) {
                         signale.note("MWareTv Id: " + id);
                         signale.note("MWareTV Pass: " + pass);
                         signale.note("MWareTV Customer Name " + customerName);
-                        resolve({ id: credentialsJSON["loginid"], pass: credentialsJSON["password"] });
+                        resolve({ id: credentialsJSON["loginid"], pass: credentialsJSON["password"], expiry: `${expiryDate} ${expiryTime}` });
                     }
                     else {
                         signale.warn("ID and Pass not found");
@@ -261,6 +264,13 @@ function changeCustomerProduct(telephoneNumber, pass) {
                 reject(reason);
             });
         });
+    });
+}
+function createSubscriberID(telephoneNumber) {
+    return __awaiter(this, void 0, void 0, function* () {
+        return new Promise((resolve => {
+            resolve(`U-${telephoneNumber}`);
+        }));
     });
 }
 function getSubscriberDetails(telephoneNumber) {

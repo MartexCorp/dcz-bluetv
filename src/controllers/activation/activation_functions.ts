@@ -22,13 +22,13 @@ export const activateOffer = function(request: Request, response: Response){
       .then((result)=>{
         if(result["resultCode"]==405000000){
           signale.success("Offer Subscription Successful at CRM")
-          getSubscriberDetails(_subscriber).then((subsObj)=>{
+          createSubscriberID(_subscriber).then((subID)=>{
             checkIfCustomerExists(_subscriber)
               .then((isExisting)=> {
                 if (!isExisting) {
-                  addCustomerMwareTV(_subscriber, subsObj["name"])
+                  addCustomerMwareTV(_subscriber, subID)
                     .then((result) => {
-                      sendSMSToUserPhone(_subscriber, `[Pass]:\n Login: ${result["id"]}\n Pass: ${result["pass"]}\n Use this credentials to login to BlueViu App https://play.google.com`)
+                      sendSMSToUserPhone(_subscriber, `[Pass]:\n Login: ${result["id"]}\n Pass: ${result["pass"]}\n Expiry: ${result["expiry"]}\n Use this credentials to login to BlueViu App https://play.google.com`)
                         .then((smsResultStatus) => {
                           signale.info(`SMS Response Status ${smsResultStatus}`);
                           let statusObject = {
@@ -135,7 +135,7 @@ async function ChangeOptionalOffer (subscriber:string, offerID:string): Promise<
   });
 }
 
-async function addCustomerMwareTV (telephoneNumber, customerName):Promise<object>{
+async function  addCustomerMwareTV (telephoneNumber, customerName):Promise<object>{
   signale.info("MWare Add Customer started...")
   let fName, mName, lName, mlName:string;
   fName = customerName.toString().split(" ")[0];
@@ -158,11 +158,14 @@ async function addCustomerMwareTV (telephoneNumber, customerName):Promise<object
           const credentialsJSON = JSON.parse(response.data.toString().replace(/\\/g, ""));
           let id = credentialsJSON["loginid"];
           let pass = credentialsJSON["password"];
+          let expirySplit = credentialsJSON["subscriptionenddate"].split("T")
+          let expiryDate = expirySplit[0];
+          let expiryTime = credentialsJSON[1]
           if (id!=null && pass!=null){
             signale.note("MWareTv Id: "+ id);
             signale.note("MWareTV Pass: "+ pass)
             signale.note("MWareTV Customer Name "+ customerName)
-            resolve({id: credentialsJSON["loginid"], pass: credentialsJSON["password"]});
+            resolve({id: credentialsJSON["loginid"], pass: credentialsJSON["password"], expiry:`${expiryDate} ${expiryTime}`});
           }else{
             signale.warn("ID and Pass not found")
             reject({status: false, message:"ID and Pass not found" })
@@ -248,6 +251,12 @@ async function changeCustomerProduct (telephoneNumber,pass):Promise<object>{
         reject(reason);
       });
   })
+}
+
+async function createSubscriberID(telephoneNumber):Promise<string>{
+  return new Promise((resolve => {
+    resolve(`U-${telephoneNumber}`)
+  }))
 }
 
 async function  getSubscriberDetails (telephoneNumber):Promise<object> {
